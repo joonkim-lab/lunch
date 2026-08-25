@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>오늘점심</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#F7F5EE; --card:#FFFFFF; --ink:#1F2A22; --muted:#6B746E; --line:#E2DFD4;
+    --green:#1F5E3B; --green-soft:#E3EFE6; --mustard:#E9B949; --mustard-soft:#FBF1D6;
+    --red:#B4442E; --red-soft:#F8E4DF; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;font-size:16px;line-height:1.5}
+  header.top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--green);color:#fff}
+  header.top .brand{font-weight:700;font-size:20px;letter-spacing:-.02em}
+  header.top #who{margin-left:auto;font-size:13px;opacity:.9}
+  header.top button{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
+  main{max-width:720px;margin:0 auto;padding:18px 16px 80px}
+  footer{text-align:center;font-size:11px;color:var(--muted);padding:18px;letter-spacing:.04em}
+  h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}
+  h2{font-size:17px;margin:22px 0 10px}
+  p.sub{margin:0 0 16px;color:var(--muted);font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  button{font:inherit;cursor:pointer}
+  .btn{display:inline-block;border:none;border-radius:10px;padding:12px 18px;font-weight:600;background:var(--green);color:#fff}
+  .btn.secondary{background:var(--green-soft);color:var(--green)}
+  .btn.danger{background:var(--red-soft);color:var(--red)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.wide{width:100%;padding:16px;font-size:17px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+  .pill.open{background:var(--mustard-soft);color:#7A5A10}
+  .pill.locked{background:var(--red-soft);color:var(--red)}
+  .pill.ok{background:var(--green-soft);color:var(--green)}
+  .dayrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .dayrow:first-of-type{border-top:none}
+  .dayname{font-weight:700;font-size:15px}
+  .dayname small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .opts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .opt{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:12px 4px;font-size:14px;font-weight:600;color:var(--ink);transition:transform .08s}
+  .opt:active{transform:scale(.96)}
+  .opt.on{background:var(--green);border-color:var(--green);color:#fff}
+  .opt.none{color:var(--muted)}
+  .opt.none.on{background:#6B746E;border-color:#6B746E;color:#fff}
+  .opt:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+  .excl{background:var(--mustard-soft);color:#7A5A10;border-radius:10px;padding:12px;font-size:14px;font-weight:600}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:14px}
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:12px;color:var(--muted);font-weight:600}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  input[type=text],select,textarea{font:inherit;width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
+  textarea{min-height:120px}
+  .menugrid{display:grid;grid-template-columns:56px repeat(3,1fr);gap:8px;align-items:center}
+  .menugrid .h{font-size:12px;color:var(--muted);font-weight:600}
+  .stat{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .stat div{flex:1;min-width:120px;background:var(--green-soft);border-radius:10px;padding:10px 12px}
+  .stat b{display:block;font-size:22px}
+  .stat span{font-size:12px;color:var(--green)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--muted);font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:var(--red-soft);color:var(--red);border-radius:8px;padding:4px 8px;font-size:13px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.show{opacity:1}
+  label.ck{display:inline-flex;align-items:center;gap:4px;font-size:13px;margin-right:8px}
+  #print{display:none}
+  @media print{
+    body>*:not(#print){display:none!important}
+    #print{display:block}
+    .page{page-break-after:always;padding:8mm 4mm;font-family:"Pretendard Variable",Pretendard,sans-serif;color:#000}
+    .page:last-child{page-break-after:auto}
+    .page h1{font-size:24px;margin:0 0 2px}
+    .page .meta{font-size:13px;margin:0 0 14px;color:#333}
+    .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .col h3{font-size:16px;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid #000}
+    .col ul{list-style:none;margin:0;padding:0;font-size:14px;column-count:1}
+    .col li{padding:3px 0;border-bottom:1px dotted #bbb}
+    .col li::before{content:"☐ ";font-size:15px}
+    .legend{margin-top:16px;font-size:12px;color:#333}
+    .qty{border-collapse:collapse;width:100%;font-size:15px;margin-top:10px}
+    .qty th,.qty td{border:1px solid #000;padding:8px;text-align:center}
+    .qty th{background:#eee}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">오늘점심</span>
+  <span id="who"></span>
+  <button id="logout" hidden>나가기</button>
+</header>
+<main id="app"><div class="card">불러오는 중…</div></main>
+<footer>coldwater1042</footer>
+<section id="print"></section>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+/* ===== 여기만 채우면 됩니다 =================================== */
+const firebaseConfig = {
+  apiKey: "PASTE_HERE",
+  authDomain: "PASTE_HERE.firebaseapp.com",
+  projectId: "PASTE_HERE",
+  storageBucket: "PASTE_HERE.appspot.com",
+  messagingSenderId: "PASTE_HERE",
+  appId: "PASTE_HERE"
+};
+const ADMIN_EMAILS = ["joon.kim@educclesia.com"];
+const DEADLINE_HOUR = 13;   // 금요일 13:00 KST 마감
+/* ============================================================== */
+
+const MENUS = [{k:"korean",n:"한식"},{k:"salad",n:"샐러드"},{k:"salawich",n:"샐러위치"}];
+const DAYS  = [{k:"mon",n:"월",off:0},{k:"tue",n:"화",off:1},{k:"thu",n:"목",off:3},{k:"fri",n:"금",off:4}];
+const MENU_NAME = Object.fromEntries(MENUS.map(m=>[m.k,m.n]));
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ---------- 날짜 (모두 KST 기준) ---------- */
+const H = 3600000, DAY = 86400000, KST = 9*H;
+const toK = d => new Date(d.getTime()+KST);
+const ymd = ms => new Date(ms).toISOString().slice(0,10);
+const fromYmd = s => { const [y,m,d]=s.split("-").map(Number); return Date.UTC(y,m-1,d); };
+function mondayOf(shift){ const n=toK(new Date()); const back=(n.getUTCDay()+6)%7;
+  return ymd(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()-back+7*shift)); }
+const dayDate = (w,off) => ymd(fromYmd(w)+off*DAY);
+const fmtMD = s => { const d=new Date(fromYmd(s)); return `${d.getUTCMonth()+1}/${d.getUTCDate()}`; };
+const deadlineMs = w => fromYmd(w) - 3*DAY + DEADLINE_HOUR*H - KST;
+const isLocked = w => Date.now() > deadlineMs(w);
+function remain(w){ let ms=deadlineMs(w)-Date.now(); if(ms<=0) return "마감";
+  const d=Math.floor(ms/DAY), h=Math.floor(ms%DAY/H), m=Math.floor(ms%H/60000);
+  return d>0?`${d}일 ${h}시간 남음`:h>0?`${h}시간 ${m}분 남음`:`${m}분 남음`; }
+const weekLabel = w => `${fmtMD(w)} ~ ${fmtMD(dayDate(w,4))}`;
+
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+const emailKey = e => e.trim().toLowerCase();
+
+/* ---------- 데이터 ---------- */
+async function loadWeek(w){ const s=await getDoc(doc(db,"lunch_weeks",w)); return s.exists()?s.data():{menu:{},excluded:{},published:false}; }
+async function loadUsers(){ const s=await getDocs(collection(db,"lunch_users")); return s.docs.map(d=>({email:d.id,...d.data()})); }
+async function loadOrders(w){ const s=await getDocs(query(collection(db,"lunch_orders"),where("week","==",w))); const o={}; s.forEach(d=>o[d.data().email]=d.data()); return o; }
+async function loadMyOrder(w,email){ const s=await getDoc(doc(db,"lunch_orders",`${w}_${email}`)); return s.exists()?s.data():null; }
+
+/* 최종 배정: 요일별 { korean:[], salad:[], salawich:[], none:[] } , 이름 항목 {name, auto} */
+function assign(w, week, users, orders){
+  const locked=isLocked(w); const out={}; const unsubmitted=[];
+  const students=users.filter(u=>u.role==="student"&&u.active!==false).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  for(const d of DAYS) out[d.k]={korean:[],salad:[],salawich:[],none:[]};
+  for(const u of students){
+    const o=orders[u.email]; const ex=(week.excluded||{})[u.email]||[];
+    if(!o&&!DAYS.every(d=>ex.includes(d.k))) unsubmitted.push(u);
+    for(const d of DAYS){
+      if(ex.includes(d.k)){ out[d.k].none.push({name:u.name,why:"대회"}); continue; }
+      const c=o?.choices?.[d.k];
+      if(c&&c!=="none") out[d.k][c].push({name:u.name});
+      else if(c==="none") out[d.k].none.push({name:u.name,why:"안 먹음"});
+      else if(locked) out[d.k].korean.push({name:u.name,auto:true});
+      else out[d.k].none.push({name:u.name,why:"미신청"});
+    }
+  }
+  return {out,students,unsubmitted};
+}
+
+/* ---------- 상태 ---------- */
+const S = { user:null, role:null, name:"", tab:"status", week:mondayOf(1) };
+
+onAuthStateChanged(auth, async u=>{
+  if(!u){ S.user=null; renderLogin(); return; }
+  const email=emailKey(u.email);
+  let rec=null; try{ const s=await getDoc(doc(db,"lunch_users",email)); if(s.exists()) rec=s.data(); }catch(e){}
+  if(ADMIN_EMAILS.includes(email)) S.role="admin";
+  else if(rec&&rec.active!==false) S.role=rec.role||"student";
+  else { S.user=u; renderUnregistered(u); return; }
+  S.user={email,name:rec?.name||u.displayName||email}; S.name=S.user.name;
+  $("#who").textContent=`${S.name} · ${({admin:"관리쌤",staff:"운영진",student:"학생"})[S.role]}`;
+  $("#logout").hidden=false;
+  S.role==="student"?renderStudent():renderAdmin();
+});
+$("#logout").onclick=()=>signOut(auth);
+
+function renderLogin(){
+  $("#who").textContent=""; $("#logout").hidden=true;
+  $("#app").innerHTML=`<div class="card" style="text-align:center;padding:40px 16px">
+    <h1>다음주 점심, 미리 고르기</h1>
+    <p class="sub">학교 구글 계정으로 들어오세요</p>
+    <button class="btn wide" id="login">Google로 로그인</button></div>`;
+  $("#login").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>toast("로그인 실패: "+e.code));
+}
+function renderUnregistered(u){
+  $("#who").textContent=u.email; $("#logout").hidden=false;
+  $("#app").innerHTML=`<div class="card"><h1>아직 등록되지 않은 계정이에요</h1>
+    <p class="sub"><b>${esc(u.email)}</b> 은 학생 명단에 없어요. 관리쌤에게 이 이메일로 등록해 달라고 말해주세요.</p></div>`;
+}
+
+/* ================= 학생 화면 ================= */
+async function renderStudent(){
+  const w=mondayOf(1), email=S.user.email;
+  const [week,my]=await Promise.all([loadWeek(w),loadMyOrder(w,email)]);
+  const locked=isLocked(w), ex=(week.excluded||{})[email]||[];
+  const choices={...(my?.choices||{})};
+  const root=$("#app");
+
+  if(!week.published){
+    root.innerHTML=`<h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
+      <div class="card">다음주 메뉴가 아직 올라오지 않았어요. 메뉴가 올라오면 다시 들어와 주세요.</div>`;
+    return;
+  }
+
+  function draw(){
+    const done=DAYS.every(d=>ex.includes(d.k)||choices[d.k]);
+    root.innerHTML=`
+      <h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
+      <p class="sub">${locked?`<span class="pill locked">마감됨</span> 신청 안 한 날은 한식으로 들어가요.`
+        :`<span class="pill open">${remain(w)}</span> 금요일 오후 1시까지 저장해 주세요.${my?` <span class="pill ok">저장됨</span>`:""}`}</p>
+      <div class="card">
+        ${DAYS.map(d=>{
+          const m=week.menu?.[d.k]||{};
+          if(ex.includes(d.k)) return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div><div class="excl">대회 출전 · 점심 신청 없음</div></div>`;
+          const cur=choices[d.k]||(locked?"korean":"");
+          return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>
+            <div class="opts">
+              ${MENUS.map(x=>`<button class="opt ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""} title="${esc(m[x.k]||"")}">${x.n}<div style="font-size:11px;font-weight:400;opacity:.8;margin-top:2px">${esc((m[x.k]||"").slice(0,10))}</div></button>`).join("")}
+              <button class="opt none ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>안 먹음</button>
+            </div></div>`;
+        }).join("")}
+      </div>
+      ${locked?"":`<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="copyPrev">지난주랑 똑같이</button></div>
+      <button class="btn wide" id="save" ${done?"":"disabled"}>${done?"저장하기":"모든 요일을 골라주세요"}</button>`}`;
+
+    root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; draw(); });
+    const cp=$("#copyPrev"); if(cp) cp.onclick=async()=>{
+      const prev=await loadMyOrder(mondayOf(0),email);
+      if(!prev){ toast("지난주 신청 기록이 없어요"); return; }
+      for(const d of DAYS) if(!ex.includes(d.k)&&prev.choices?.[d.k]) choices[d.k]=prev.choices[d.k];
+      draw(); toast("지난주 선택을 가져왔어요. 저장을 눌러주세요");
+    };
+    const sv=$("#save"); if(sv) sv.onclick=async()=>{
+      if(isLocked(w)){ toast("마감 시간이 지났어요"); renderStudent(); return; }
+      sv.disabled=true; sv.textContent="저장 중…";
+      try{
+        const clean={}; for(const d of DAYS) if(!ex.includes(d.k)) clean[d.k]=choices[d.k];
+        await setDoc(doc(db,"lunch_orders",`${w}_${email}`),{week:w,email,name:S.name,choices:clean,submittedAt:serverTimestamp()});
+        toast("저장됐어요"); renderStudent();
+      }catch(e){ toast("저장 실패: "+e.code); sv.disabled=false; sv.textContent="저장하기"; }
+    };
+  }
+  draw();
+}
+
+/* ================= 관리 화면 ================= */
+async function renderAdmin(){
+  const isAdmin=S.role==="admin";
+  const tabs=[["status","신청 현황"],["excl","대회 제외"],...(isAdmin?[["menu","메뉴 입력"],["users","학생 명단"]]:[])];
+  const root=$("#app");
+  root.innerHTML=`
+    <div class="row" style="justify-content:space-between">
+      <h1>점심 관리</h1>
+      <select id="weekSel" style="width:auto">
+        <option value="${mondayOf(0)}" ${S.week===mondayOf(0)?"selected":""}>이번주 ${weekLabel(mondayOf(0))}</option>
+        <option value="${mondayOf(1)}" ${S.week===mondayOf(1)?"selected":""}>다음주 ${weekLabel(mondayOf(1))}</option>
+      </select>
+    </div>
+    <div class="tabs">${tabs.map(t=>`<button class="tab ${S.tab===t[0]?"on":""}" data-t="${t[0]}">${t[1]}</button>`).join("")}</div>
+    <div id="panel"><div class="card">불러오는 중…</div></div>`;
+  $("#weekSel").onchange=e=>{ S.week=e.target.value; renderAdmin(); };
+  root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; renderAdmin(); });
+
+  const w=S.week;
+  const [week,users,orders]=await Promise.all([loadWeek(w),loadUsers(),loadOrders(w)]);
+  const panel=$("#panel");
+  ({status:panelStatus,excl:panelExcl,menu:panelMenu,users:panelUsers})[S.tab](panel,w,week,users,orders);
+}
+
+function panelStatus(panel,w,week,users,orders){
+  const {out,students,unsubmitted}=assign(w,week,users,orders);
+  const locked=isLocked(w);
+  const submitted=students.length-unsubmitted.length;
+  panel.innerHTML=`
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span>${locked?`<span class="pill locked">마감됨</span>`:`<span class="pill open">${remain(w)}</span>`} ${week.published?`<span class="pill ok">메뉴 게시됨</span>`:`<span class="pill locked">메뉴 미게시</span>`}</span>
+        <button class="btn" id="printBtn">출력 (PDF 5장)</button>
+      </div>
+      <div class="stat">
+        <div><b>${submitted} / ${students.length}</b><span>신청 완료</span></div>
+        <div><b>${unsubmitted.length}</b><span>미신청 ${locked?"(한식 자동)":""}</span></div>
+      </div>
+      <table><tr><th>요일</th>${MENUS.map(m=>`<th>${m.n}</th>`).join("")}<th>안 먹음·대회</th></tr>
+        ${DAYS.map(d=>`<tr><td>${d.n} ${fmtMD(dayDate(w,d.off))}</td>${MENUS.map(m=>`<td class="num">${out[d.k][m.k].length}</td>`).join("")}<td class="num">${out[d.k].none.length}</td></tr>`).join("")}
+      </table>
+    </div>
+    <div class="card"><h2 style="margin-top:0">미신청 학생 ${unsubmitted.length}명</h2>
+      ${unsubmitted.length?`<div class="chips">${unsubmitted.map(u=>`<span class="chip">${esc(u.name)}</span>`).join("")}</div>`:`<p class="muted">모두 신청했어요.</p>`}
+    </div>`;
+  $("#printBtn").onclick=()=>{ buildPrint(w,out); window.print(); };
+}
+
+function buildPrint(w,out){
+  const dayName={mon:"월요일",tue:"화요일",thu:"목요일",fri:"금요일"};
+  let html="";
+  for(const d of DAYS){
+    const o=out[d.k];
+    const cnt=MENUS.map(m=>`${m.n} ${o[m.k].length}`).join(" · ");
+    html+=`<div class="page"><h1>${dayName[d.k]} ${fmtMD(dayDate(w,d.off))} 점심</h1>
+      <p class="meta">${cnt} · 안 먹음·대회 ${o.none.length}</p>
+      <div class="cols">${MENUS.map(m=>`<div class="col"><h3>${m.n} <span style="font-weight:400">${o[m.k].length}명</span></h3>
+        <ul>${o[m.k].map(x=>`<li>${esc(x.name)}${x.auto?" ○":""}</li>`).join("")}</ul></div>`).join("")}</div>
+      <p class="legend">○ = 미신청이라 한식으로 자동 배정 &nbsp;·&nbsp; 안 먹음·대회: ${o.none.map(x=>esc(x.name)+"("+x.why+")").join(", ")||"없음"}</p></div>`;
+  }
+  html+=`<div class="page"><h1>업체 주문 수량 ${weekLabel(w)}</h1>
+    <table class="qty"><tr><th></th>${MENUS.map(m=>`<th>${m.n}</th>`).join("")}<th>합계</th></tr>
+    ${DAYS.map(d=>{ const o=out[d.k]; const t=MENUS.reduce((s,m)=>s+o[m.k].length,0);
+      return `<tr><th>${dayName[d.k]} ${fmtMD(dayDate(w,d.off))}</th>${MENUS.map(m=>`<td>${o[m.k].length}</td>`).join("")}<td>${t}</td></tr>`; }).join("")}
+    </table></div>`;
+  $("#print").innerHTML=html;
+}
+
+function panelExcl(panel,w,week,users,orders){
+  const students=users.filter(u=>u.role==="student"&&u.active!==false).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  const ex=JSON.parse(JSON.stringify(week.excluded||{}));
+  panel.innerHTML=`<div class="card">
+    <p class="sub">대회·합숙으로 점심이 필요 없는 날에 체크하세요. 체크된 날은 학생 화면에서 잠기고, 출력과 수량에서 빠집니다.</p>
+    <div class="row" style="margin-bottom:10px"><input type="text" id="q" placeholder="이름 검색" style="max-width:200px"><span class="muted" id="exCount"></span></div>
+    <table><tr><th>학생</th>${DAYS.map(d=>`<th>${d.n} ${fmtMD(dayDate(w,d.off))}</th>`).join("")}</tr>
+      ${students.map(u=>`<tr data-name="${esc(u.name)}"><td>${esc(u.name)}</td>${DAYS.map(d=>`<td><input type="checkbox" data-e="${esc(u.email)}" data-d="${d.k}" ${(ex[u.email]||[]).includes(d.k)?"checked":""}></td>`).join("")}</tr>`).join("")}
+    </table>
+    <div style="margin-top:14px"><button class="btn" id="saveEx">제외 저장</button></div></div>`;
+  const count=()=>{ const n=Object.values(ex).filter(a=>a.length).length; $("#exCount").textContent=n?`${n}명 제외 예정`:""; }; count();
+  panel.querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>{
+    const e=c.dataset.e,d=c.dataset.d; ex[e]=ex[e]||[];
+    if(c.checked){ if(!ex[e].includes(d)) ex[e].push(d); } else ex[e]=ex[e].filter(x=>x!==d);
+    if(!ex[e].length) delete ex[e]; count();
+  });
+  $("#q").oninput=e=>{ const q=e.target.value.trim(); panel.querySelectorAll("tr[data-name]").forEach(r=>r.style.display=r.dataset.name.includes(q)?"":"none"); };
+  $("#saveEx").onclick=async()=>{
+    try{ await setDoc(doc(db,"lunch_weeks",w),{excluded:ex},{merge:true}); toast("저장됐어요"); }catch(e){ toast("저장 실패: "+e.code); }
+  };
+}
+
+function panelMenu(panel,w,week){
+  const m=week.menu||{};
+  panel.innerHTML=`<div class="card">
+    <p class="sub">업체에서 온 메뉴를 요일별로 적고 게시하세요. 게시해야 학생들이 신청할 수 있어요.</p>
+    <div class="menugrid"><div></div>${MENUS.map(x=>`<div class="h">${x.n}</div>`).join("")}
+      ${DAYS.map(d=>`<div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>${MENUS.map(x=>`<input type="text" data-d="${d.k}" data-m="${x.k}" value="${esc(m[d.k]?.[x.k]||"")}" placeholder="메뉴명">`).join("")}`).join("")}
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
+      ${week.published?`<button class="btn danger" id="unpub">게시 내리기</button>`:""}
+      <span class="muted">${week.published?"학생들에게 보이는 중":"아직 학생들에게 안 보임"}</span>
+    </div></div>`;
+  const collect=()=>{ const menu={}; panel.querySelectorAll("input[data-d]").forEach(i=>{ menu[i.dataset.d]=menu[i.dataset.d]||{}; menu[i.dataset.d][i.dataset.m]=i.value.trim(); }); return menu; };
+  $("#pub").onclick=async()=>{ try{ await setDoc(doc(db,"lunch_weeks",w),{menu:collect(),published:true},{merge:true}); toast("게시했어요"); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
+  const up=$("#unpub"); if(up) up.onclick=async()=>{ try{ await setDoc(doc(db,"lunch_weeks",w),{menu:collect(),published:false},{merge:true}); toast("게시를 내렸어요"); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
+}
+
+function panelUsers(panel,w,week,users){
+  const list=[...users].sort((a,b)=>(a.role||"").localeCompare(b.role||"")||a.name.localeCompare(b.name,"ko"));
+  panel.innerHTML=`<div class="card">
+    <h2 style="margin-top:0">한꺼번에 등록</h2>
+    <p class="sub">한 줄에 한 명, <b>이름, 이메일</b> 순서로 붙여넣으세요. 이미 있는 이메일은 이름만 바뀝니다.</p>
+    <textarea id="bulk" placeholder="김철수, chulsoo@educclesia.com
+이영희, younghee@educclesia.com"></textarea>
+    <div class="row" style="margin-top:10px"><select id="bulkRole" style="width:auto"><option value="student">학생으로</option><option value="staff">운영진으로</option></select><button class="btn" id="bulkSave">등록</button></div>
+  </div>
+  <div class="card"><h2 style="margin-top:0">명단 ${list.length}명</h2>
+    <table><tr><th>이름</th><th>이메일</th><th>역할</th><th>상태</th></tr>
+    ${list.map(u=>`<tr><td>${esc(u.name)}</td><td class="muted">${esc(u.email)}</td>
+      <td><select data-e="${esc(u.email)}" class="roleSel" style="width:auto;padding:4px 6px"><option value="student" ${u.role==="student"?"selected":""}>학생</option><option value="staff" ${u.role==="staff"?"selected":""}>운영진</option><option value="admin" ${u.role==="admin"?"selected":""}>관리쌤</option></select></td>
+      <td><button class="tab ${u.active===false?"":"on"}" data-e="${esc(u.email)}" data-a="${u.active===false?"1":"0"}">${u.active===false?"비활성":"활성"}</button></td></tr>`).join("")}
+    </table></div>`;
+  $("#bulkSave").onclick=async()=>{
+    const role=$("#bulkRole").value; const lines=$("#bulk").value.split("\n").map(l=>l.trim()).filter(Boolean); let n=0;
+    for(const l of lines){ const [name,email]=l.split(/[,\t]/).map(s=>(s||"").trim()); if(!name||!email||!email.includes("@")) continue;
+      await setDoc(doc(db,"lunch_users",emailKey(email)),{name,role,active:true},{merge:true}); n++; }
+    toast(`${n}명 등록했어요`); renderAdmin();
+  };
+  panel.querySelectorAll(".roleSel").forEach(s=>s.onchange=async()=>{ await setDoc(doc(db,"lunch_users",s.dataset.e),{role:s.value},{merge:true}); toast("역할을 바꿨어요"); });
+  panel.querySelectorAll("button[data-a]").forEach(b=>b.onclick=async()=>{ await setDoc(doc(db,"lunch_users",b.dataset.e),{active:b.dataset.a==="1"},{merge:true}); renderAdmin(); });
+}
+</script>
+</body>
+</html>

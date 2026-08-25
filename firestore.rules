@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function email() { return request.auth.token.email.lower(); }
+    function userDoc() { return get(/databases/$(db)/documents/lunch_users/$(email())); }
+    function role() {
+      return request.auth == null ? 'none'
+        : email() == 'joon.kim@educclesia.com' ? 'admin'
+        : exists(/databases/$(db)/documents/lunch_users/$(email())) && userDoc().data.active != false ? userDoc().data.role
+        : 'none';
+    }
+    function isStaff() { return role() in ['admin', 'staff']; }
+
+    match /lunch_users/{uid} {
+      allow read: if request.auth != null && (uid == email() || isStaff());
+      allow write: if role() == 'admin';
+    }
+    match /lunch_weeks/{week} {
+      allow read: if role() != 'none';
+      allow write: if isStaff();
+    }
+    match /lunch_orders/{id} {
+      allow read: if role() != 'none' && (resource.data.email == email() || isStaff());
+      allow create, update: if role() == 'student'
+        && request.resource.data.email == email()
+        && id == request.resource.data.week + '_' + email();
+    }
+  }
+}
