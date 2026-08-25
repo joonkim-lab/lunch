@@ -204,30 +204,34 @@ function renderUnregistered(u){
 }
 
 /* ================= 학생 화면 ================= */
-async function renderStudent(){
-  const w=mondayOf(1), email=S.user.email;
+async function renderStudent(previewOf){
+  const ro=!!previewOf;
+  const w=mondayOf(1), email=ro?previewOf.email:S.user.email;
   const [week,my]=await Promise.all([loadWeek(w),loadMyOrder(w,email)]);
-  const locked=isLocked(w), ex=(week.excluded||{})[email]||[];
+  const locked=isLocked(w)||ro, ex=(week.excluded||{})[email]||[];
+  const bar=ro?`<div class="card" style="background:var(--mustard-soft);border-color:var(--mustard)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
+  const bindBack=()=>{ const b=$("#backAdmin"); if(b) b.onclick=()=>renderAdmin(); };
   const choices={...(my?.choices||{})};
   const root=$("#app");
 
   if(!week.published){
-    root.innerHTML=`<h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
+    root.innerHTML=`${bar}<h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
       <div class="card">다음주 메뉴가 아직 올라오지 않았어요. 메뉴가 올라오면 다시 들어와 주세요.</div>`;
-    return;
+    bindBack(); return;
   }
 
   function draw(){
     const done=DAYS.every(d=>ex.includes(d.k)||choices[d.k]);
-    root.innerHTML=`
+    root.innerHTML=`${bar}
       <h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
-      <p class="sub">${locked?`<span class="pill locked">마감됨</span> 신청 안 한 날은 한식으로 들어가요.`
+      <p class="sub">${ro?`<span class="pill open">미리보기</span> ${my?"저장한 내용이 이렇게 보여요.":"아직 신청하지 않은 상태예요."}`
+        :locked?`<span class="pill locked">마감됨</span> 신청 안 한 날은 한식으로 들어가요.`
         :`<span class="pill open">${remain(w)}</span> 금요일 오후 1시까지 저장해 주세요.${my?` <span class="pill ok">저장됨</span>`:""}`}</p>
       <div class="card">
         ${DAYS.map(d=>{
           const m=week.menu?.[d.k]||{};
           if(ex.includes(d.k)) return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div><div class="excl">대회 출전 · 점심 신청 없음</div></div>`;
-          const cur=choices[d.k]||(locked?"korean":"");
+          const cur=choices[d.k]||(isLocked(w)?"korean":"");
           return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>
             <div class="opts">
               ${MENUS.map(x=>`<button class="opt ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""} title="${esc(m[x.k]||"")}">${x.n}<div style="font-size:11px;font-weight:400;opacity:.8;margin-top:2px">${esc((m[x.k]||"").slice(0,10))}</div></button>`).join("")}
@@ -238,6 +242,7 @@ async function renderStudent(){
       ${locked?"":`<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="copyPrev">지난주랑 똑같이</button></div>
       <button class="btn wide" id="save" ${done?"":"disabled"}>${done?"저장하기":"모든 요일을 골라주세요"}</button>`}`;
 
+    bindBack();
     root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; draw(); });
     const cp=$("#copyPrev"); if(cp) cp.onclick=async()=>{
       const prev=await loadMyOrder(mondayOf(0),email);
@@ -292,6 +297,11 @@ function panelStatus(panel,w,week,users,orders){
         <span>${locked?`<span class="pill locked">마감됨</span>`:`<span class="pill open">${remain(w)}</span>`} ${week.published?`<span class="pill ok">메뉴 게시됨</span>`:`<span class="pill locked">메뉴 미게시</span>`}</span>
         <button class="btn" id="printBtn">출력 (PDF 5장)</button>
       </div>
+      ${students.length?`<div class="row" style="margin-bottom:12px">
+        <span class="muted">학생 화면 미리보기</span>
+        <select id="pvSel" style="width:auto;max-width:220px">${students.map(u=>`<option value="${esc(u.email)}">${esc(u.name)}</option>`).join("")}</select>
+        <button class="btn secondary" id="pvGo">보기</button>
+      </div>`:""}
       <div class="stat">
         <div><b>${submitted} / ${students.length}</b><span>신청 완료</span></div>
         <div><b>${unsubmitted.length}</b><span>미신청 ${locked?"(한식 자동)":""}</span></div>
@@ -304,6 +314,7 @@ function panelStatus(panel,w,week,users,orders){
       ${unsubmitted.length?`<div class="chips">${unsubmitted.map(u=>`<span class="chip">${esc(u.name)}</span>`).join("")}</div>`:`<p class="muted">모두 신청했어요.</p>`}
     </div>`;
   $("#printBtn").onclick=()=>{ buildPrint(w,out); window.print(); };
+  const pv=$("#pvGo"); if(pv) pv.onclick=()=>{ const e=$("#pvSel").value; const u=students.find(x=>x.email===e); renderStudent({email:u.email,name:u.name}); };
 }
 
 function buildPrint(w,out){
