@@ -460,7 +460,7 @@ function panelMenu(panel,w,week){
     <p class="sub">칸마다 한 가지씩 적으면 학생 화면에도 같은 순서로 줄맞춰 보입니다. 빈 칸은 그냥 두세요. 샐러드·샌드위치는 아래 A/B 표에서 자동으로 들어갑니다.</p>
     <div class="korgrid">
       <div></div>${DAYS.map(d=>`<div class="kh"><b>${d.n}</b> ${fmtMD(dayDate(w,d.off))}</div>`).join("")}
-      ${[0,1,2,3,4,5,6].map(i=>`<div class="kn">${i+1}</div>${DAYS.map(d=>`<input type="text" class="kor" data-d="${d.k}" data-i="${i}" value="${esc((m[d.k]?.korean||[])[i]||"")}" placeholder="${["주요리","국","반찬","반찬","반찬","김치류","반찬"][i]}">`).join("")}`).join("")}
+      ${[0,1,2,3,4,5,6].map(i=>`<div class="kn">${i+1}</div>${DAYS.map(d=>`<input type="text" class="kor" data-d="${d.k}" data-i="${i}" value="${esc((m[d.k]?.korean||[])[i]||"")}" placeholder="${["주요리","국","반찬","반찬","반찬","반찬","김치류 (김치, 볶음김치, 깍두기 등)"][i]}">`).join("")}`).join("")}
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
