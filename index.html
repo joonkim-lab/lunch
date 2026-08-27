@@ -46,6 +46,15 @@
   .pill.open{background:var(--amber-soft);color:var(--amber)}
   .pill.locked{background:var(--red-soft);color:var(--red)}
   .pill.ok{background:var(--seal-soft);color:var(--seal)}
+  .hero{max-width:400px;margin:6vh auto 0;text-align:center;padding:0 8px}
+  .hero .clock{width:96px;height:96px;color:var(--ink);display:block;margin:0 auto 22px}
+  .hero .hands{transform-origin:60px 60px;animation:tick .9s cubic-bezier(.2,.9,.25,1) both}
+  @keyframes tick{from{transform:rotate(-38deg);opacity:.2}to{transform:rotate(0);opacity:1}}
+  .hero .wordmark{font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+  .hero .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .hero .lede{color:var(--slate);font-size:15px;line-height:1.6;margin:26px 0 30px}
+  .hero .note{font-size:12.5px;color:var(--faint);margin-top:14px}
+  @media(prefers-reduced-motion:reduce){ .hero .hands{animation:none} }
   .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--slate);text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .dayrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:12px 0;border-top:.5px solid var(--line)}
   .dayrow:first-of-type{border-top:none}
@@ -274,11 +283,24 @@ $("#logout").onclick=()=>signOut(auth);
 $("#adminBtn").onclick=()=>renderAdmin();
 
 function renderLogin(){
-  $("#who").textContent=""; $("#logout").hidden=true;
-  $("#app").innerHTML=`<div class="card" style="text-align:center;padding:40px 16px">
-    <h1>다음주 점심, 미리 정해두기</h1>
-    <p class="sub">학교 구글 계정으로 들어오세요</p>
-    <button class="btn wide" id="login">Google로 로그인</button></div>`;
+  $("#who").textContent=""; $("#logout").hidden=true; $("#adminBtn").hidden=true;
+  $("#app").innerHTML=`<div class="hero">
+    <svg class="clock" viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="2" opacity=".16"/>
+      ${[...Array(12)].map((_,i)=>{const a=i*30*Math.PI/180,r1=i%3===0?42:46,r2=48;
+        return `<line x1="${60+r1*Math.sin(a)}" y1="${60-r1*Math.cos(a)}" x2="${60+r2*Math.sin(a)}" y2="${60-r2*Math.cos(a)}" stroke="currentColor" stroke-width="${i%3===0?2.4:1.2}" opacity="${i%3===0?".55":".22"}" stroke-linecap="round"/>`;}).join("")}
+      <g class="hands">
+        <line x1="60" y1="60" x2="60" y2="30" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="60" y1="60" x2="60" y2="20" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      </g>
+      <circle cx="60" cy="60" r="3.4" fill="currentColor"/>
+    </svg>
+    <div class="wordmark">열두시</div>
+    <div class="tag">2mm 점심 신청</div>
+    <p class="lede">다음주 점심을 미리 정해두세요.<br>금요일 오후 1시에 마감돼요.</p>
+    <button class="btn wide" id="login">학교 구글 계정으로 시작</button>
+    <p class="note">명단에 등록된 계정만 들어올 수 있어요</p>
+  </div>`;
   $("#login").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>toast("로그인 실패: "+e.code));
 }
 function renderUnregistered(u){
