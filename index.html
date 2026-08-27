@@ -7,64 +7,82 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
-    --bg:#F2F2F7; --card:#FFFFFF; --ink:#1C1C1E; --muted:#8E8E93;
-    --line:rgba(60,60,67,.14); --line-strong:rgba(60,60,67,.29);
-    --accent:#2F7D5C; --accent-soft:#E8F2ED;
-    --amber:#B25E02; --amber-soft:#FFF4E5;
-    --red:#C0392B; --red-soft:#FDECEA; --radius:16px;
+    --ink:#1D1D1F; --slate:#6E6E73; --faint:#86868B;
+    --paper:#F5F5F7; --card:#FFFFFF; --line:#D2D2D7; --line-2:#F0F0F4;
+    --accent:#0B6BCB; --accent-soft:#EAF2FC;
+    --seal:#1A7F4B; --seal-soft:#E8F6EE;
+    --amber:#8A5A00; --amber-soft:#FDF3E0;
+    --red:#C4342B; --red-soft:#FDEDEC;
+    --shadow:0 1px 2px rgba(0,0,0,.04); --shadow-lg:0 8px 30px rgba(0,0,0,.08);
+    --r:18px; --r-sm:14px;
+    --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard Variable",Pretendard,system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    --muted:var(--slate); --bg:var(--paper); --line-strong:var(--line); --accent2:var(--accent);
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard Variable",Pretendard,sans-serif;font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased}
-  header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line-strong);color:var(--ink)}
-  header.top .brand{font-weight:700;font-size:19px;letter-spacing:-.02em}
-  header.top #who{margin-left:auto;font-size:13px;color:var(--muted)}
-  header.top button{background:transparent;border:none;color:var(--accent);border-radius:8px;padding:6px 6px;font-size:16px}
-  main{max-width:640px;margin:0 auto;padding:20px 16px 90px}
-  footer{text-align:center;font-size:11px;color:var(--muted);padding:18px;letter-spacing:.04em}
-  h1{font-size:30px;font-weight:700;margin:0 0 4px;letter-spacing:-.03em}
-  h2{font-size:19px;font-weight:700;margin:22px 0 10px;letter-spacing:-.02em}
-  p.sub{margin:0 0 18px;color:var(--muted);font-size:15px}
-  .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  header.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:12px max(16px,env(safe-area-inset-left));background:var(--ink);color:#fff;box-shadow:0 6px 20px rgba(11,27,51,.18)}
+  header.top .brand{font-weight:800;font-size:20px;letter-spacing:.01em}
+  header.top #who{margin-left:auto;font-size:12px;color:rgba(255,255,255,.66);letter-spacing:.02em}
+  header.top button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:600}
+  header.top button:hover{background:rgba(255,255,255,.16)}
+  main{max-width:1120px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left)) 64px}
+  footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);padding:22px;letter-spacing:.08em}
+  h1{font-weight:800;font-size:clamp(26px,4.4vw,38px);margin:.1em 0 .15em;letter-spacing:-.01em}
+  h2{font-size:19px;font-weight:700;margin:22px 0 10px;letter-spacing:-.01em}
+  p.sub{margin:0 0 22px;color:var(--slate);font-size:15px;max-width:60ch}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
   button{font:inherit;cursor:pointer}
-  .btn{display:inline-block;border:none;border-radius:12px;padding:12px 18px;font-weight:600;font-size:16px;background:var(--accent);color:#fff;transition:opacity .12s,transform .08s}
-  .btn:active{transform:scale(.98);opacity:.85}
-  .btn.secondary{background:var(--accent-soft);color:var(--accent)}
-  .btn.danger{background:var(--red-soft);color:var(--red)}
-  .btn:disabled{opacity:.35;cursor:not-allowed}
-  .btn.wide{width:100%;padding:16px;font-size:17px;border-radius:14px}
-  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600}
+  .btn{display:inline-block;border:1.5px solid var(--accent);border-radius:10px;padding:11px 20px;font-weight:700;font-size:14.5px;background:var(--accent);color:#fff;transition:background .15s,border-color .15s,color .15s}
+  .btn:hover{background:var(--ink);border-color:var(--ink)}
+  .btn.secondary{background:#fff;border-color:var(--line);color:var(--ink)}
+  .btn.secondary:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .btn.danger{background:var(--red-soft);border-color:var(--red-soft);color:var(--red)}
+  .btn.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn:disabled:hover{background:var(--accent);border-color:var(--accent)}
+  .btn.wide{width:100%;padding:15px;font-size:16px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
   .pill.open{background:var(--amber-soft);color:var(--amber)}
   .pill.locked{background:var(--red-soft);color:var(--red)}
-  .pill.ok{background:var(--accent-soft);color:var(--accent)}
+  .pill.ok{background:var(--seal-soft);color:var(--seal)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--slate);text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .dayrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:12px 0;border-top:.5px solid var(--line)}
   .dayrow:first-of-type{border-top:none}
   .dayname{font-weight:700;font-size:15px}
   .dayname small{display:block;font-weight:400;color:var(--muted);font-size:12px}
-  .daycard{background:var(--card);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-  .dayhead{display:flex;align-items:baseline;gap:8px;padding:14px 16px 10px}
-  .dayhead b{font-size:19px;letter-spacing:-.02em}
-  .dayhead span{font-size:14px;color:var(--muted)}
-  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:none;border:none;padding:13px 16px;border-top:.5px solid var(--line);transition:background .12s}
-  .choice:active{background:rgba(0,0,0,.04)}
-  .choice .tick{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;border:1.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
-  .choice.on .tick{background:var(--accent);border-color:var(--accent)}
-  .choice .body{flex:1;min-width:0}
-  .choice .ttl{font-size:17px;font-weight:600;letter-spacing:-.01em}
-  .choice.on .ttl{color:var(--accent)}
-  .choice .dishes{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
-  .choice:disabled{opacity:.55}
-  .choice.skip .ttl{color:var(--muted)}
-  .choice.skip.on .ttl{color:var(--amber)}
-  .choice.skip.on .tick{background:var(--amber);border-color:var(--amber)}
-  .why{background:var(--amber-soft);padding:12px 16px;border-top:.5px solid var(--line)}
-  .why .warn{font-size:14px;color:var(--amber);font-weight:600;margin-bottom:10px;line-height:1.4}
-  .why .row{gap:8px}
-  .why button{border:1px solid var(--line-strong);background:#fff;border-radius:99px;padding:8px 16px;font-size:15px;font-weight:600;color:var(--ink)}
+  .board{overflow-x:auto;padding-bottom:4px;margin-bottom:20px}
+  .grid4{display:grid;grid-template-columns:repeat(4,minmax(168px,1fr));gap:12px;align-items:stretch}
+  .dhead{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;box-shadow:var(--shadow)}
+  .dhead b{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .dhead span{display:block;font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.06em;margin-top:2px}
+  .cell{display:block;width:100%;height:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:12px 13px;transition:border-color .15s,background .15s,transform .12s;box-shadow:var(--shadow)}
+  .cell:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  .cell:active:not(:disabled){transform:translateY(1px)}
+  .cell .ttl{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+  .cell .tick{flex:none;width:17px;height:17px;border-radius:50%;border:1.5px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+  .cell .dishes{font-size:12.5px;color:var(--slate);line-height:1.5;margin-top:7px}
+  .cell.on{border-color:var(--seal);background:var(--seal-soft)}
+  .cell.on .ttl{color:var(--seal)}
+  .cell.on .tick{background:var(--seal);border-color:var(--seal)}
+  .cell.on .dishes{color:#2C6B4C}
+  .cell:disabled{opacity:.6;cursor:default}
+  .cell.skip{background:var(--line-2);border-style:dashed}
+  .cell.skip .ttl{color:var(--slate)}
+  .cell.skip.on{background:var(--amber-soft);border-color:var(--amber);border-style:solid}
+  .cell.skip.on .ttl{color:var(--amber)}
+  .cell.skip.on .tick{background:var(--amber);border-color:var(--amber)}
+  .cell.excl{background:var(--amber-soft);border-color:var(--amber);border-style:dashed}
+  .cell.excl .ttl{color:var(--amber)}
+  .why{background:var(--amber-soft);border:1px solid var(--amber);border-radius:var(--r-sm);padding:12px 14px}
+  .why .warn{font-size:12.5px;color:var(--amber);font-weight:700;margin-bottom:9px;line-height:1.45}
+  .why .row{gap:6px}
+  .why button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:700;color:var(--ink)}
   .why button.on{background:var(--amber);border-color:var(--amber);color:#fff}
-  .excl{background:var(--amber-soft);color:var(--amber);padding:14px 16px;font-size:15px;font-weight:600;border-top:.5px solid var(--line)}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
-  .tab{border:.5px solid var(--line-strong);background:#fff;border-radius:99px;padding:8px 14px;font-size:15px;color:var(--ink)}
+  .tab{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 15px;font-size:13.5px;font-weight:600;color:var(--ink)}
   .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  @media(max-width:640px){ main{padding:20px 12px 60px} .grid4{grid-template-columns:repeat(4,minmax(150px,1fr))} }
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{text-align:left;padding:9px 6px;border-bottom:.5px solid var(--line);vertical-align:middle}
   th{font-size:12px;color:var(--muted);font-weight:600}
@@ -253,7 +271,7 @@ async function renderStudent(previewOf){
   const w=mondayOf(1), email=ro?previewOf.email:S.user.email;
   const [week,my]=await Promise.all([loadWeek(w),loadMyOrder(w,email)]);
   const locked=isLocked(w)||ro, ex=(week.excluded||{})[email]||[];
-  const bar=ro?`<div class="card" style="background:var(--amber-soft)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
+  const bar=ro?`<div class="card" style="background:var(--amber-soft);border-color:var(--amber)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
   const bindBack=()=>{ const b=$("#backAdmin"); if(b) b.onclick=()=>renderAdmin(); };
   const choices={...(my?.choices||{})}; const reasons={...(my?.reasons||{})};
   const root=$("#app");
@@ -271,36 +289,36 @@ async function renderStudent(previewOf){
       <p class="sub">${ro?`<span class="pill open">미리보기</span> ${my?"저장한 내용이 이렇게 보여요.":"아직 신청하지 않은 상태예요."}`
         :locked?`<span class="pill locked">마감됨</span> 신청 안 한 날은 한식으로 들어가요.`
         :`<span class="pill open">${remain(w)}</span> 금요일 오후 1시까지 저장해 주세요.${my?` <span class="pill ok">저장됨</span>`:""}`}</p>
-      ${DAYS.map(d=>{
+      <div class="board"><div class="grid4">
+        ${DAYS.map(d=>`<div class="dhead"><b>${d.n}요일</b><span>${fmtMD(dayDate(w,d.off))}</span></div>`).join("")}
+        ${[...MENUS,{k:"none",n:"못 먹어요"}].map(x=>DAYS.map(d=>{
           const m=week.menu?.[d.k]||{};
-          const head=`<div class="dayhead"><b>${d.n}요일</b><span>${fmtMD(dayDate(w,d.off))}</span></div>`;
-          if(ex.includes(d.k)) return `<div class="daycard">${head}<div class="excl">대회 출전 · 점심 신청 없음</div></div>`;
           const cur=choices[d.k]||(isLocked(w)?"korean":"");
-          const rows=MENUS.map(x=>{
-            const v=m[x.k], arr=Array.isArray(v)?v:(v?[v]:[]);
-            return `<button class="choice ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""}>
-              <span class="tick">${cur===x.k?"✓":""}</span>
-              <span class="body"><span class="ttl">${x.n}</span>${arr.length?`<div class="dishes">${arr.map(t=>esc(t)).join(" · ")}</div>`:""}</span>
-            </button>`;
-          }).join("");
-          return `<div class="daycard">${head}${rows}
-            <button class="choice skip ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>
-              <span class="tick">${cur==="none"?"✓":""}</span>
-              <span class="body"><span class="ttl">못 먹어요</span></span>
-            </button>
-            ${cur==="none"?`<div class="why">
-              <div class="warn">점심을 못 먹는 날은 행정실 선생님께 반드시 다시 확인받아야 해요.</div>
-              <div class="row">
-                <button data-d="${d.k}" data-w="대회 출전" class="${reasons[d.k]==="대회 출전"?"on":""}" ${locked?"disabled":""}>대회 출전</button>
-                <button data-d="${d.k}" data-w="기타" class="${reasons[d.k]==="기타"?"on":""}" ${locked?"disabled":""}>기타</button>
-              </div></div>`:""}
-          </div>`;
+          if(ex.includes(d.k)) return x.k===MENUS[0].k
+            ? `<div class="cell excl" style="grid-row:span ${MENUS.length+1}"><span class="ttl">대회 출전</span><div class="dishes">이 날은 점심 신청을 하지 않아요.</div></div>`
+            : "";
+          const v=m[x.k], arr=Array.isArray(v)?v:(v?[v]:[]);
+          return `<button class="cell ${x.k==="none"?"skip":""} ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""}>
+            <span class="ttl"><span class="tick">${cur===x.k?"✓":""}</span>${x.n}</span>
+            ${arr.length?`<div class="dishes">${arr.map(t=>esc(t)).join("<br>")}</div>`:""}
+          </button>`;
+        }).join("")).join("")}
+        ${DAYS.map(d=>{
+          const cur=choices[d.k]||"";
+          if(ex.includes(d.k)||cur!=="none") return "";
+          return `<div class="why" style="grid-column:${DAYS.indexOf(d)+1}">
+            <div class="warn">행정실 선생님께 반드시 다시 확인받아야 해요.</div>
+            <div class="row">
+              <button data-d="${d.k}" data-w="대회 출전" class="${reasons[d.k]==="대회 출전"?"on":""}" ${locked?"disabled":""}>대회 출전</button>
+              <button data-d="${d.k}" data-w="기타" class="${reasons[d.k]==="기타"?"on":""}" ${locked?"disabled":""}>기타</button>
+            </div></div>`;
         }).join("")}
+      </div></div>
       ${locked?"":`<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="copyPrev">지난주랑 똑같이</button></div>
       <button class="btn wide" id="save" ${done?"":"disabled"}>${done?"저장하기":"모든 요일을 골라주세요"}</button>`}`;
 
     bindBack();
-    root.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; if(b.dataset.m!=="none") delete reasons[b.dataset.d]; draw(); });
+    root.querySelectorAll(".cell").forEach(b=>{ if(b.dataset.m) b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; if(b.dataset.m!=="none") delete reasons[b.dataset.d]; draw(); }; });
     root.querySelectorAll(".why button").forEach(b=>b.onclick=()=>{ reasons[b.dataset.d]=b.dataset.w; draw(); });
     const cp=$("#copyPrev"); if(cp) cp.onclick=async()=>{
       const prev=await loadMyOrder(mondayOf(0),email);
