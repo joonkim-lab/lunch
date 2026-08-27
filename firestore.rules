@@ -19,6 +19,10 @@ service cloud.firestore {
       allow read: if role() != 'none';
       allow write: if isStaff();
     }
+    match /lunch_templates/{cycle} {
+      allow read: if role() != 'none';
+      allow write: if isStaff();
+    }
     match /lunch_orders/{id} {
       allow read: if role() != 'none' && (resource.data.email == email() || isStaff());
       allow create, update: if role() == 'student'
