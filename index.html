@@ -44,6 +44,11 @@
   .opt.none{color:var(--muted)}
   .opt.none.on{background:#6B746E;border-color:#6B746E;color:#fff}
   .opt:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+  .why{grid-column:1/-1;background:var(--mustard-soft);border:1px solid var(--mustard);border-radius:10px;padding:10px 12px;margin-top:8px}
+  .why .warn{font-size:13px;color:#7A5A10;font-weight:600;margin-bottom:8px}
+  .why .row{gap:6px}
+  .why button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600}
+  .why button.on{background:#7A5A10;border-color:#7A5A10;color:#fff}
   .excl{background:var(--mustard-soft);color:#7A5A10;border-radius:10px;padding:12px;font-size:14px;font-weight:600}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
   .tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:14px}
@@ -176,7 +181,7 @@ function assign(w, week, users, orders){
       if(ex.includes(d.k)){ out[d.k].none.push({name:u.name,why:"대회"}); continue; }
       const c=o?.choices?.[d.k];
       if(c&&c!=="none") out[d.k][c].push({name:u.name});
-      else if(c==="none") out[d.k].none.push({name:u.name,why:"안 먹음"});
+      else if(c==="none") out[d.k].none.push({name:u.name,why:o?.reasons?.[d.k]||"기타"});
       else if(locked) out[d.k].korean.push({name:u.name,auto:true});
       else out[d.k].none.push({name:u.name,why:"미신청"});
     }
@@ -225,7 +230,7 @@ async function renderStudent(previewOf){
   const locked=isLocked(w)||ro, ex=(week.excluded||{})[email]||[];
   const bar=ro?`<div class="card" style="background:var(--mustard-soft);border-color:var(--mustard)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
   const bindBack=()=>{ const b=$("#backAdmin"); if(b) b.onclick=()=>renderAdmin(); };
-  const choices={...(my?.choices||{})};
+  const choices={...(my?.choices||{})}; const reasons={...(my?.reasons||{})};
   const root=$("#app");
 
   if(!week.published && !ro){
@@ -235,7 +240,7 @@ async function renderStudent(previewOf){
   }
 
   function draw(){
-    const done=DAYS.every(d=>ex.includes(d.k)||choices[d.k]);
+    const done=DAYS.every(d=>ex.includes(d.k)||(choices[d.k]&&(choices[d.k]!=="none"||reasons[d.k])));
     root.innerHTML=`${bar}
       <h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
       <p class="sub">${ro?`<span class="pill open">미리보기</span> ${my?"저장한 내용이 이렇게 보여요.":"아직 신청하지 않은 상태예요."}`
@@ -249,15 +254,23 @@ async function renderStudent(previewOf){
           return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>
             <div class="opts">
               ${MENUS.map(x=>`<button class="opt ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""} title="${esc(m[x.k]||"")}">${x.n}<div style="font-size:11px;font-weight:400;opacity:.8;margin-top:2px">${esc((m[x.k]||"").slice(0,10))}</div></button>`).join("")}
-              <button class="opt none ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>안 먹음</button>
-            </div></div>`;
+              <button class="opt none ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>못 먹어요</button>
+            </div>
+            ${cur==="none"?`<div class="why">
+              <div class="warn">⚠ 점심을 못 먹는 날은 행정실 선생님께 반드시 다시 확인받아야 해요.</div>
+              <div class="row">
+                <button data-d="${d.k}" data-w="대회 출전" class="${reasons[d.k]==="대회 출전"?"on":""}" ${locked?"disabled":""}>대회 출전</button>
+                <button data-d="${d.k}" data-w="기타" class="${reasons[d.k]==="기타"?"on":""}" ${locked?"disabled":""}>기타</button>
+              </div></div>`:""}
+            </div>`;
         }).join("")}
       </div>
       ${locked?"":`<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="copyPrev">지난주랑 똑같이</button></div>
       <button class="btn wide" id="save" ${done?"":"disabled"}>${done?"저장하기":"모든 요일을 골라주세요"}</button>`}`;
 
     bindBack();
-    root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; draw(); });
+    root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; if(b.dataset.m!=="none") delete reasons[b.dataset.d]; draw(); });
+    root.querySelectorAll(".why button").forEach(b=>b.onclick=()=>{ reasons[b.dataset.d]=b.dataset.w; draw(); });
     const cp=$("#copyPrev"); if(cp) cp.onclick=async()=>{
       const prev=await loadMyOrder(mondayOf(0),email);
       if(!prev){ toast("지난주 신청 기록이 없어요"); return; }
@@ -268,8 +281,9 @@ async function renderStudent(previewOf){
       if(isLocked(w)){ toast("마감 시간이 지났어요"); renderStudent(); return; }
       sv.disabled=true; sv.textContent="저장 중…";
       try{
-        const clean={}; for(const d of DAYS) if(!ex.includes(d.k)) clean[d.k]=choices[d.k];
-        await setDoc(doc(db,"lunch_orders",`${w}_${email}`),{week:w,email,name:S.name,choices:clean,submittedAt:serverTimestamp()});
+        const clean={}, rs={};
+        for(const d of DAYS) if(!ex.includes(d.k)){ clean[d.k]=choices[d.k]; if(choices[d.k]==="none") rs[d.k]=reasons[d.k]||"기타"; }
+        await setDoc(doc(db,"lunch_orders",`${w}_${email}`),{week:w,email,name:S.name,choices:clean,reasons:rs,submittedAt:serverTimestamp()});
         toast("저장됐어요"); renderStudent();
       }catch(e){ toast("저장 실패: "+e.code); sv.disabled=false; sv.textContent="저장하기"; }
     };
@@ -321,7 +335,7 @@ function panelStatus(panel,w,week,users,orders){
         <div><b>${submitted} / ${students.length}</b><span>신청 완료</span></div>
         <div><b>${unsubmitted.length}</b><span>미신청 ${locked?"(한식 자동)":""}</span></div>
       </div>
-      <table><tr><th>요일</th>${MENUS.map(m=>`<th>${m.n}</th>`).join("")}<th>안 먹음·대회</th></tr>
+      <table><tr><th>요일</th>${MENUS.map(m=>`<th>${m.n}</th>`).join("")}<th>결식</th></tr>
         ${DAYS.map(d=>`<tr><td>${d.n} ${fmtMD(dayDate(w,d.off))}</td>${MENUS.map(m=>`<td class="num">${out[d.k][m.k].length}</td>`).join("")}<td class="num">${out[d.k].none.length}</td></tr>`).join("")}
       </table>
     </div>
@@ -339,11 +353,18 @@ function buildPrint(w,out){
     const o=out[d.k];
     const cnt=MENUS.map(m=>`${m.n} ${o[m.k].length}`).join(" · ");
     html+=`<div class="page"><h1>${dayName[d.k]} ${fmtMD(dayDate(w,d.off))} 점심</h1>
-      <p class="meta">${cnt} · 안 먹음·대회 ${o.none.length}</p>
+      <p class="meta">${cnt} · 결식 ${o.none.length}</p>
       <div class="cols">${MENUS.map(m=>`<div class="col"><h3>${m.n} <span style="font-weight:400">${o[m.k].length}명</span></h3>
         <ul>${o[m.k].map(x=>`<li>${esc(x.name)}${x.auto?" ○":""}</li>`).join("")}</ul></div>`).join("")}</div>
-      <p class="legend">○ = 미신청이라 한식으로 자동 배정 &nbsp;·&nbsp; 안 먹음·대회: ${o.none.map(x=>esc(x.name)+"("+x.why+")").join(", ")||"없음"}</p></div>`;
+      <p class="legend">○ = 미신청이라 한식으로 자동 배정 &nbsp;·&nbsp; 결식: ${o.none.map(x=>esc(x.name)+"("+x.why+")").join(", ")||"없음"}</p></div>`;
   }
+  const rows=[];
+  for(const d of DAYS) for(const x of out[d.k].none) rows.push({day:`${dayName[d.k]} ${fmtMD(dayDate(w,d.off))}`,name:x.name,why:x.why});
+  html+=`<div class="page"><h1>결식 명단 ${weekLabel(w)}</h1>
+    <p class="meta">행정실 확인용 · 총 ${rows.length}건 · 각 학생에게 반드시 다시 확인해 주세요</p>
+    <table class="qty"><tr><th>요일</th><th>이름</th><th>사유</th><th>확인</th></tr>
+    ${rows.length?rows.map(r=>`<tr><td>${r.day}</td><td>${esc(r.name)}</td><td>${esc(r.why)}</td><td>☐</td></tr>`).join(""):`<tr><td colspan="4">없음</td></tr>`}
+    </table></div>`;
   html+=`<div class="page"><h1>업체 주문 수량 ${weekLabel(w)}</h1>
     <table class="qty"><tr><th></th>${MENUS.map(m=>`<th>${m.n}</th>`).join("")}<th>합계</th></tr>
     ${DAYS.map(d=>{ const o=out[d.k]; const t=MENUS.reduce((s,m)=>s+o[m.k].length,0);
