@@ -153,7 +153,7 @@ let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.class
 const emailKey = e => e.trim().toLowerCase();
 
 /* ---------- 데이터 ---------- */
-const CYCLE_ANCHOR = "2026-08-31";   // 이 주가 A. 이후 격주로 B, A, B ...
+const CYCLE_ANCHOR = "2026-09-07";   // 이 주가 A. 8/31 주는 B, 이후 격주 반복
 function autoCycle(w){ return Math.round((fromYmd(w)-fromYmd(CYCLE_ANCHOR))/(7*DAY))%2===0 ? "A" : "B"; }
 async function loadTemplate(c){ const s=await getDoc(doc(db,"lunch_templates",c)); return s.exists()?s.data():{salad:{},sandwich:{}}; }
 async function loadWeek(w){
