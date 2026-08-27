@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>오늘점심</title>
+<title>열두시</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
@@ -89,8 +89,9 @@
 </head>
 <body>
 <header class="top">
-  <span class="brand">오늘점심</span>
+  <span class="brand">열두시</span>
   <span id="who"></span>
+  <button id="adminBtn" hidden>관리</button>
   <button id="logout" hidden>나가기</button>
 </header>
 <main id="app"><div class="card">불러오는 중…</div></main>
@@ -185,14 +186,16 @@ onAuthStateChanged(auth, async u=>{
   S.user={email,name:rec?.name||u.displayName||email}; S.name=S.user.name;
   $("#who").textContent=`${S.name} · ${({admin:"관리쌤",staff:"운영진",student:"학생"})[S.role]}`;
   $("#logout").hidden=false;
-  S.role==="student"?renderStudent():renderAdmin();
+  $("#adminBtn").hidden = S.role==="student";
+  renderStudent();
 });
 $("#logout").onclick=()=>signOut(auth);
+$("#adminBtn").onclick=()=>renderAdmin();
 
 function renderLogin(){
   $("#who").textContent=""; $("#logout").hidden=true;
   $("#app").innerHTML=`<div class="card" style="text-align:center;padding:40px 16px">
-    <h1>다음주 점심, 미리 고르기</h1>
+    <h1>다음주 점심, 미리 정해두기</h1>
     <p class="sub">학교 구글 계정으로 들어오세요</p>
     <button class="btn wide" id="login">Google로 로그인</button></div>`;
   $("#login").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>toast("로그인 실패: "+e.code));
@@ -214,7 +217,7 @@ async function renderStudent(previewOf){
   const choices={...(my?.choices||{})};
   const root=$("#app");
 
-  if(!week.published){
+  if(!week.published && !ro){
     root.innerHTML=`${bar}<h1>다음주 점심 <span class="muted">${weekLabel(w)}</span></h1>
       <div class="card">다음주 메뉴가 아직 올라오지 않았어요. 메뉴가 올라오면 다시 들어와 주세요.</div>`;
     bindBack(); return;
@@ -270,7 +273,7 @@ async function renderAdmin(){
   const root=$("#app");
   root.innerHTML=`
     <div class="row" style="justify-content:space-between">
-      <h1>점심 관리</h1>
+      <h1>점심 관리 <button class="btn secondary" id="toStudent" style="font-size:14px;padding:6px 12px;vertical-align:middle">내 신청으로</button></h1>
       <select id="weekSel" style="width:auto">
         <option value="${mondayOf(0)}" ${S.week===mondayOf(0)?"selected":""}>이번주 ${weekLabel(mondayOf(0))}</option>
         <option value="${mondayOf(1)}" ${S.week===mondayOf(1)?"selected":""}>다음주 ${weekLabel(mondayOf(1))}</option>
@@ -278,6 +281,7 @@ async function renderAdmin(){
     </div>
     <div class="tabs">${tabs.map(t=>`<button class="tab ${S.tab===t[0]?"on":""}" data-t="${t[0]}">${t[1]}</button>`).join("")}</div>
     <div id="panel"><div class="card">불러오는 중…</div></div>`;
+  $("#toStudent").onclick=()=>renderStudent();
   $("#weekSel").onchange=e=>{ S.week=e.target.value; renderAdmin(); };
   root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.t; renderAdmin(); });
 
