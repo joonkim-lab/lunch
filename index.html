@@ -117,7 +117,7 @@ const ADMIN_EMAILS = ["joon.kim@educclesia.com"];
 const DEADLINE_HOUR = 13;   // 금요일 13:00 KST 마감
 /* ============================================================== */
 
-const MENUS = [{k:"korean",n:"한식"},{k:"salad",n:"샐러드"},{k:"salawich",n:"샐러위치"}];
+const MENUS = [{k:"korean",n:"한식"},{k:"salad",n:"샐러드"},{k:"sandwich",n:"샌드위치"}];
 const DAYS  = [{k:"mon",n:"월",off:0},{k:"tue",n:"화",off:1},{k:"thu",n:"목",off:3},{k:"fri",n:"금",off:4}];
 const MENU_NAME = Object.fromEntries(MENUS.map(m=>[m.k,m.n]));
 
@@ -148,16 +148,27 @@ let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.class
 const emailKey = e => e.trim().toLowerCase();
 
 /* ---------- 데이터 ---------- */
-async function loadWeek(w){ const s=await getDoc(doc(db,"lunch_weeks",w)); return s.exists()?s.data():{menu:{},excluded:{},published:false}; }
+const CYCLE_ANCHOR = "2026-08-31";   // 이 주가 A. 이후 격주로 B, A, B ...
+function autoCycle(w){ return Math.round((fromYmd(w)-fromYmd(CYCLE_ANCHOR))/(7*DAY))%2===0 ? "A" : "B"; }
+async function loadTemplate(c){ const s=await getDoc(doc(db,"lunch_templates",c)); return s.exists()?s.data():{salad:{},sandwich:{}}; }
+async function loadWeek(w){
+  const s=await getDoc(doc(db,"lunch_weeks",w));
+  const d=s.exists()?s.data():{};
+  const cycle=d.cycle||autoCycle(w);
+  const tpl=await loadTemplate(cycle);
+  const menu={};
+  for(const day of DAYS) menu[day.k]={korean:d.korean?.[day.k]||"",salad:tpl.salad?.[day.k]||"",sandwich:tpl.sandwich?.[day.k]||""};
+  return {korean:d.korean||{},cycle,menu,excluded:d.excluded||{},published:!!d.published};
+}
 async function loadUsers(){ const s=await getDocs(collection(db,"lunch_users")); return s.docs.map(d=>({email:d.id,...d.data()})); }
 async function loadOrders(w){ const s=await getDocs(query(collection(db,"lunch_orders"),where("week","==",w))); const o={}; s.forEach(d=>o[d.data().email]=d.data()); return o; }
 async function loadMyOrder(w,email){ const s=await getDoc(doc(db,"lunch_orders",`${w}_${email}`)); return s.exists()?s.data():null; }
 
-/* 최종 배정: 요일별 { korean:[], salad:[], salawich:[], none:[] } , 이름 항목 {name, auto} */
+/* 최종 배정: 요일별 { korean:[], salad:[], sandwich:[], none:[] } , 이름 항목 {name, auto} */
 function assign(w, week, users, orders){
   const locked=isLocked(w); const out={}; const unsubmitted=[];
   const students=users.filter(u=>u.role==="student"&&u.active!==false).sort((a,b)=>a.name.localeCompare(b.name,"ko"));
-  for(const d of DAYS) out[d.k]={korean:[],salad:[],salawich:[],none:[]};
+  for(const d of DAYS) out[d.k]={korean:[],salad:[],sandwich:[],none:[]};
   for(const u of students){
     const o=orders[u.email]; const ex=(week.excluded||{})[u.email]||[];
     if(!o&&!DAYS.every(d=>ex.includes(d.k))) unsubmitted.push(u);
@@ -298,7 +309,7 @@ function panelStatus(panel,w,week,users,orders){
   panel.innerHTML=`
     <div class="card">
       <div class="row" style="justify-content:space-between;margin-bottom:10px">
-        <span>${locked?`<span class="pill locked">마감됨</span>`:`<span class="pill open">${remain(w)}</span>`} ${week.published?`<span class="pill ok">메뉴 게시됨</span>`:`<span class="pill locked">메뉴 미게시</span>`}</span>
+        <span>${locked?`<span class="pill locked">마감됨</span>`:`<span class="pill open">${remain(w)}</span>`} ${week.published?`<span class="pill ok">메뉴 게시됨</span>`:`<span class="pill locked">메뉴 미게시</span>`} <span class="pill open">${week.cycle}주차</span></span>
         <button class="btn" id="printBtn">출력 (PDF 5장)</button>
       </div>
       ${students.length?`<div class="row" style="margin-bottom:12px">
@@ -364,20 +375,38 @@ function panelExcl(panel,w,week,users,orders){
 }
 
 function panelMenu(panel,w,week){
-  const m=week.menu||{};
+  const m=week.menu||{}, cyc=week.cycle;
   panel.innerHTML=`<div class="card">
-    <p class="sub">업체에서 온 메뉴를 요일별로 적고 게시하세요. 게시해야 학생들이 신청할 수 있어요.</p>
-    <div class="menugrid"><div></div>${MENUS.map(x=>`<div class="h">${x.n}</div>`).join("")}
-      ${DAYS.map(d=>`<div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>${MENUS.map(x=>`<input type="text" data-d="${d.k}" data-m="${x.k}" value="${esc(m[d.k]?.[x.k]||"")}" placeholder="메뉴명">`).join("")}`).join("")}
+    <div class="row" style="justify-content:space-between;margin-bottom:6px">
+      <h2 style="margin:0">이번 주 한식</h2>
+      <span>샐러드·샌드위치 <b>${cyc}</b>주차 <button class="tab" id="swap">${cyc==="A"?"B":"A"}로 바꾸기</button></span>
     </div>
+    <p class="sub">매주 바뀌는 건 한식뿐이에요. 샐러드·샌드위치는 아래 A/B 표에서 자동으로 들어갑니다.</p>
+    ${DAYS.map(d=>`<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>
+      <input type="text" class="kor" data-d="${d.k}" value="${esc(m[d.k]?.korean||"")}" placeholder="한식 메뉴명"></div>`).join("")}
     <div class="row" style="margin-top:14px">
       <button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
       ${week.published?`<button class="btn danger" id="unpub">게시 내리기</button>`:""}
       <span class="muted">${week.published?"학생들에게 보이는 중":"아직 학생들에게 안 보임"}</span>
-    </div></div>`;
-  const collect=()=>{ const menu={}; panel.querySelectorAll("input[data-d]").forEach(i=>{ menu[i.dataset.d]=menu[i.dataset.d]||{}; menu[i.dataset.d][i.dataset.m]=i.value.trim(); }); return menu; };
-  $("#pub").onclick=async()=>{ try{ await setDoc(doc(db,"lunch_weeks",w),{menu:collect(),published:true},{merge:true}); toast("게시했어요"); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
-  const up=$("#unpub"); if(up) up.onclick=async()=>{ try{ await setDoc(doc(db,"lunch_weeks",w),{menu:collect(),published:false},{merge:true}); toast("게시를 내렸어요"); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">${cyc}주차 샐러드·샌드위치</h2>
+    <p class="sub">한 번 채워두면 격주로 계속 쓰입니다. 업체가 메뉴를 바꿀 때만 고치세요.</p>
+    <div class="menugrid"><div></div><div class="h">샐러드</div><div class="h">샌드위치</div><div></div>
+      ${DAYS.map(d=>`<div class="dayname">${d.n}</div>
+        <input type="text" class="tpl" data-t="salad" data-d="${d.k}" value="${esc(m[d.k]?.salad||"")}" placeholder="샐러드">
+        <input type="text" class="tpl" data-t="sandwich" data-d="${d.k}" value="${esc(m[d.k]?.sandwich||"")}" placeholder="샌드위치"><div></div>`).join("")}
+    </div>
+    <div class="row" style="margin-top:14px"><button class="btn secondary" id="saveTpl">${cyc}주차 표 저장</button></div>
+  </div>`;
+  const korean=()=>{ const o={}; panel.querySelectorAll("input.kor").forEach(i=>o[i.dataset.d]=i.value.trim()); return o; };
+  const tpl=()=>{ const o={salad:{},sandwich:{}}; panel.querySelectorAll("input.tpl").forEach(i=>o[i.dataset.t][i.dataset.d]=i.value.trim()); return o; };
+  const put=async(data,msg)=>{ try{ await setDoc(doc(db,"lunch_weeks",w),data,{merge:true}); toast(msg); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
+  $("#pub").onclick=()=>put({korean:korean(),cycle:cyc,published:true},"게시했어요");
+  const up=$("#unpub"); if(up) up.onclick=()=>put({korean:korean(),cycle:cyc,published:false},"게시를 내렸어요");
+  $("#swap").onclick=()=>put({korean:korean(),cycle:cyc==="A"?"B":"A"},"주차를 바꿨어요");
+  $("#saveTpl").onclick=async()=>{ try{ await setDoc(doc(db,"lunch_templates",cyc),tpl(),{merge:true}); toast(`${cyc}주차 표를 저장했어요`); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
 }
 
 function panelUsers(panel,w,week,users){
