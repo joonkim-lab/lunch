@@ -98,6 +98,7 @@
   .korgrid .kh b{font-size:15px}
   .korgrid .kn{font-family:var(--mono);font-size:11px;color:var(--faint);text-align:right}
   .korgrid input{font-size:14px;padding:8px 10px}
+  .kfix{font-size:14px;padding:8px 10px;border:1px dashed var(--line);border-radius:10px;color:var(--slate);background:var(--line-2)}
   .korgrid{align-items:start}
   .kslot{display:block}
   .klab{display:block;font-size:11px;font-weight:700;color:var(--slate);margin:0 0 3px 2px;line-height:1.3}
@@ -464,10 +465,8 @@ function panelMenu(panel,w,week){
     <p class="sub">칸마다 한 가지씩 적으면 학생 화면에도 같은 순서로 줄맞춰 보입니다. 빈 칸은 그냥 두세요. 샐러드·샌드위치는 아래 A/B 표에서 자동으로 들어갑니다.</p>
     <div class="korgrid">
       <div></div>${DAYS.map(d=>`<div class="kh"><b>${d.n}</b> ${fmtMD(dayDate(w,d.off))}</div>`).join("")}
-      ${[0,1,2,3,4,5,6].map(i=>{
-        const L=[["주요리",""],["국",""],["반찬",""],["반찬",""],["반찬",""],["샐러드류","(푸실리샐러드, 코울슬로 등)"],["김치류","(김치, 깍두기, 볶음김치 등)"]][i];
-        return `<div class="kn">${i+1}</div>${DAYS.map(d=>`<div class="kslot"><span class="klab">${L[0]}${L[1]?`<em>${L[1]}</em>`:""}</span><input type="text" class="kor" data-d="${d.k}" data-i="${i}" value="${esc((m[d.k]?.korean||[])[i]||"")}" placeholder="${L[0]}"></div>`).join("")}`;
-      }).join("")}
+      ${[0,1,2,3,4,5].map(i=>`<div class="kn">${i+1}</div>${DAYS.map(d=>`<input type="text" class="kor" data-d="${d.k}" data-i="${i}" value="${esc((m[d.k]?.korean||[])[i]||"")}" placeholder="${["주요리","국","반찬","반찬","반찬","반찬"][i]}">`).join("")}`).join("")}
+      <div class="kn">7</div>${DAYS.map(()=>`<div class="kfix">김치류</div>`).join("")}
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
@@ -487,7 +486,7 @@ function panelMenu(panel,w,week){
   </div>`;
   const korean=()=>{ const o={}; DAYS.forEach(d=>o[d.k]=[]);
     panel.querySelectorAll(".kor").forEach(i=>{ o[i.dataset.d][+i.dataset.i]=i.value.trim(); });
-    DAYS.forEach(d=>{ o[d.k]=Array.from(o[d.k],v=>v||""); while(o[d.k].length&&!o[d.k][o[d.k].length-1]) o[d.k].pop(); });
+    DAYS.forEach(d=>{ o[d.k]=Array.from(o[d.k],v=>v||""); while(o[d.k].length&&!o[d.k][o[d.k].length-1]) o[d.k].pop(); if(o[d.k].length){ while(o[d.k].length<6) o[d.k].push(""); o[d.k][6]="김치류"; } });
     return o; };
   const tpl=()=>{ const o={salad:{},sandwich:{}}; panel.querySelectorAll("input.tpl").forEach(i=>o[i.dataset.t][i.dataset.d]=i.value.trim()); return o; };
   const put=async(data,msg)=>{ try{ await setDoc(doc(db,"lunch_weeks",w),data,{merge:true}); toast(msg); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
