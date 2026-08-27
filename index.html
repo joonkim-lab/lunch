@@ -166,6 +166,14 @@ const ADMIN_EMAILS = ["joon.kim@educclesia.com"];
 const DEADLINE_HOUR = 13;   // 금요일 13:00 KST 마감
 /* ============================================================== */
 
+const ROLES = {
+  admin:  {n:"운영진", tabs:["status","excl","menu","users"]},
+  office: {n:"행정실", tabs:["status","excl","menu"]},
+  teacher:{n:"교사",   tabs:["status"]},
+  vendor: {n:"업체",   tabs:["menu"]},
+  student:{n:"학생",   tabs:[]}
+};
+const ROLE_ORDER = ["admin","office","teacher","vendor","student"];
 const MENUS = [{k:"korean",n:"한식"},{k:"salad",n:"샐러드"},{k:"sandwich",n:"샌드위치"}];
 const DAYS  = [{k:"mon",n:"월",off:0},{k:"tue",n:"화",off:1},{k:"thu",n:"목",off:3},{k:"fri",n:"금",off:4}];
 const MENU_NAME = Object.fromEntries(MENUS.map(m=>[m.k,m.n]));
@@ -256,9 +264,10 @@ onAuthStateChanged(auth, async u=>{
   else if(rec&&rec.active!==false) S.role=rec.role||"student";
   else { S.user=u; renderUnregistered(u); return; }
   S.user={email,name:rec?.name||u.displayName||email}; S.name=S.user.name;
-  $("#who").textContent=`${S.name} · ${({admin:"관리쌤",staff:"운영진",student:"학생"})[S.role]}`;
+  if(S.role==="staff") S.role="office";
+  $("#who").textContent=`${S.name} · ${(ROLES[S.role]||ROLES.student).n}`;
   $("#logout").hidden=false;
-  $("#adminBtn").hidden = S.role==="student";
+  $("#adminBtn").hidden = !(ROLES[S.role]?.tabs.length);
   renderStudent();
 });
 $("#logout").onclick=()=>signOut(auth);
@@ -354,8 +363,10 @@ async function renderStudent(previewOf){
 
 /* ================= 관리 화면 ================= */
 async function renderAdmin(){
-  const isAdmin=S.role==="admin";
-  const tabs=[["status","신청 현황"],["excl","대회 제외"],...(isAdmin?[["menu","메뉴 입력"],["users","학생 명단"]]:[])];
+  const LABEL={status:"신청 현황",excl:"대회 제외",menu:"메뉴 입력",users:"명단 관리"};
+  const allowed=ROLES[S.role]?.tabs||[];
+  if(!allowed.includes(S.tab)) S.tab=allowed[0];
+  const tabs=allowed.map(k=>[k,LABEL[k]]);
   const root=$("#app");
   root.innerHTML=`
     <div class="row" style="justify-content:space-between">
@@ -470,9 +481,11 @@ function panelMenu(panel,w,week){
       <div class="kn">7</div>${DAYS.map(()=>`<div class="kfix">김치류</div>`).join("")}
     </div>
     <div class="row" style="margin-top:14px">
-      <button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
-      ${week.published?`<button class="btn danger" id="unpub">게시 내리기</button>`:""}
-      <span class="muted">${week.published?"학생들에게 보이는 중":"아직 학생들에게 안 보임"}</span>
+      ${S.role==="vendor"
+        ? `<button class="btn" id="saveOnly">저장하기</button><span class="muted">저장하면 행정실에서 확인 후 학생들에게 공개합니다.</span>`
+        : `<button class="btn" id="pub">${week.published?"수정 후 다시 게시":"게시하기"}</button>
+           ${week.published?`<button class="btn danger" id="unpub">게시 내리기</button>`:""}
+           <span class="muted">${week.published?"학생들에게 보이는 중":"아직 학생들에게 안 보임"}</span>`}
     </div>
   </div>
   <div class="card">
@@ -491,9 +504,10 @@ function panelMenu(panel,w,week){
     return o; };
   const tpl=()=>{ const o={salad:{},sandwich:{}}; panel.querySelectorAll("input.tpl").forEach(i=>o[i.dataset.t][i.dataset.d]=i.value.trim()); return o; };
   const put=async(data,msg)=>{ try{ await setDoc(doc(db,"lunch_weeks",w),data,{merge:true}); toast(msg); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
-  $("#pub").onclick=()=>put({korean:korean(),cycle:cyc,published:true},"게시했어요");
+  const so=$("#saveOnly"); if(so) so.onclick=()=>put({korean:korean(),cycle:cyc},"저장했어요");
+  const pb=$("#pub"); if(pb) pb.onclick=()=>put({korean:korean(),cycle:cyc,published:true},"게시했어요");
   const up=$("#unpub"); if(up) up.onclick=()=>put({korean:korean(),cycle:cyc,published:false},"게시를 내렸어요");
-  $("#swap").onclick=()=>put({korean:korean(),cycle:cyc==="A"?"B":"A"},"주차를 바꿨어요");
+  const sw=$("#swap"); if(sw) sw.onclick=()=>put({korean:korean(),cycle:cyc==="A"?"B":"A"},"주차를 바꿨어요");
   $("#saveTpl").onclick=async()=>{ try{ await setDoc(doc(db,"lunch_templates",cyc),tpl(),{merge:true}); toast(`${cyc}주차 표를 저장했어요`); renderAdmin(); }catch(e){ toast("실패: "+e.code); } };
 }
 
@@ -504,12 +518,12 @@ function panelUsers(panel,w,week,users){
     <p class="sub">한 줄에 한 명, <b>이름, 이메일, 디스코드ID</b> 순서로 붙여넣으세요. 디스코드ID는 비워둬도 됩니다(나중에 추가 가능). 디스코드ID는 닉네임이 아니라 18자리 숫자입니다 — 서버 멤버 목록에서 우클릭 → 사용자 ID 복사.</p>
     <textarea id="bulk" placeholder="김철수, chulsoo@educclesia.com, 123456789012345678
 이영희, younghee@educclesia.com"></textarea>
-    <div class="row" style="margin-top:10px"><select id="bulkRole" style="width:auto"><option value="student">학생으로</option><option value="staff">운영진으로</option></select><button class="btn" id="bulkSave">등록</button></div>
+    <div class="row" style="margin-top:10px"><select id="bulkRole" style="width:auto">${ROLE_ORDER.map(r=>`<option value="${r}" ${r==="student"?"selected":""}>${ROLES[r].n}으로</option>`).join("")}</select><button class="btn" id="bulkSave">등록</button></div>
   </div>
   <div class="card"><h2 style="margin-top:0">명단 ${list.length}명</h2>
     <table><tr><th>이름</th><th>이메일</th><th>디코</th><th>역할</th><th>상태</th></tr>
     ${list.map(u=>`<tr><td>${esc(u.name)}</td><td class="muted">${esc(u.email)}</td><td class="muted">${u.discordId?"✓":"—"}</td>
-      <td><select data-e="${esc(u.email)}" class="roleSel" style="width:auto;padding:4px 6px"><option value="student" ${u.role==="student"?"selected":""}>학생</option><option value="staff" ${u.role==="staff"?"selected":""}>운영진</option><option value="admin" ${u.role==="admin"?"selected":""}>관리쌤</option></select></td>
+      <td><select data-e="${esc(u.email)}" class="roleSel" style="width:auto;padding:4px 6px">${ROLE_ORDER.map(r=>`<option value="${r}" ${u.role===r?"selected":""}>${ROLES[r].n}</option>`).join("")}</select></td>
       <td><button class="tab ${u.active===false?"":"on"}" data-e="${esc(u.email)}" data-a="${u.active===false?"1":"0"}">${u.active===false?"비활성":"활성"}</button></td></tr>`).join("")}
     </table></div>`;
   $("#bulkSave").onclick=async()=>{
