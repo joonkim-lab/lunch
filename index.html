@@ -7,69 +7,82 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
-    --bg:#F7F5EE; --card:#FFFFFF; --ink:#1F2A22; --muted:#6B746E; --line:#E2DFD4;
-    --green:#1F5E3B; --green-soft:#E3EFE6; --mustard:#E9B949; --mustard-soft:#FBF1D6;
-    --red:#B4442E; --red-soft:#F8E4DF; --radius:14px;
+    --bg:#F2F2F7; --card:#FFFFFF; --ink:#1C1C1E; --muted:#8E8E93;
+    --line:rgba(60,60,67,.14); --line-strong:rgba(60,60,67,.29);
+    --accent:#2F7D5C; --accent-soft:#E8F2ED;
+    --amber:#B25E02; --amber-soft:#FFF4E5;
+    --red:#C0392B; --red-soft:#FDECEA; --radius:16px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;font-size:16px;line-height:1.5}
-  header.top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--green);color:#fff}
-  header.top .brand{font-weight:700;font-size:20px;letter-spacing:-.02em}
-  header.top #who{margin-left:auto;font-size:13px;opacity:.9}
-  header.top button{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
-  main{max-width:720px;margin:0 auto;padding:18px 16px 80px}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard Variable",Pretendard,sans-serif;font-size:17px;line-height:1.47;-webkit-font-smoothing:antialiased}
+  header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line-strong);color:var(--ink)}
+  header.top .brand{font-weight:700;font-size:19px;letter-spacing:-.02em}
+  header.top #who{margin-left:auto;font-size:13px;color:var(--muted)}
+  header.top button{background:transparent;border:none;color:var(--accent);border-radius:8px;padding:6px 6px;font-size:16px}
+  main{max-width:640px;margin:0 auto;padding:20px 16px 90px}
   footer{text-align:center;font-size:11px;color:var(--muted);padding:18px;letter-spacing:.04em}
-  h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}
-  h2{font-size:17px;margin:22px 0 10px}
-  p.sub{margin:0 0 16px;color:var(--muted);font-size:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  h1{font-size:30px;font-weight:700;margin:0 0 4px;letter-spacing:-.03em}
+  h2{font-size:19px;font-weight:700;margin:22px 0 10px;letter-spacing:-.02em}
+  p.sub{margin:0 0 18px;color:var(--muted);font-size:15px}
+  .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
   button{font:inherit;cursor:pointer}
-  .btn{display:inline-block;border:none;border-radius:10px;padding:12px 18px;font-weight:600;background:var(--green);color:#fff}
-  .btn.secondary{background:var(--green-soft);color:var(--green)}
+  .btn{display:inline-block;border:none;border-radius:12px;padding:12px 18px;font-weight:600;font-size:16px;background:var(--accent);color:#fff;transition:opacity .12s,transform .08s}
+  .btn:active{transform:scale(.98);opacity:.85}
+  .btn.secondary{background:var(--accent-soft);color:var(--accent)}
   .btn.danger{background:var(--red-soft);color:var(--red)}
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn.wide{width:100%;padding:16px;font-size:17px}
-  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
-  .pill.open{background:var(--mustard-soft);color:#7A5A10}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.wide{width:100%;padding:16px;font-size:17px;border-radius:14px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600}
+  .pill.open{background:var(--amber-soft);color:var(--amber)}
   .pill.locked{background:var(--red-soft);color:var(--red)}
-  .pill.ok{background:var(--green-soft);color:var(--green)}
-  .dayrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .pill.ok{background:var(--accent-soft);color:var(--accent)}
+  .dayrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:12px 0;border-top:.5px solid var(--line)}
   .dayrow:first-of-type{border-top:none}
   .dayname{font-weight:700;font-size:15px}
   .dayname small{display:block;font-weight:400;color:var(--muted);font-size:12px}
-  .opts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .opt{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:12px 4px;font-size:14px;font-weight:600;color:var(--ink);transition:transform .08s}
-  .opt:active{transform:scale(.96)}
-  .opt.on{background:var(--green);border-color:var(--green);color:#fff}
-  .opt.none{color:var(--muted)}
-  .opt.none.on{background:#6B746E;border-color:#6B746E;color:#fff}
-  .opt:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
-  .why{grid-column:1/-1;background:var(--mustard-soft);border:1px solid var(--mustard);border-radius:10px;padding:10px 12px;margin-top:8px}
-  .why .warn{font-size:13px;color:#7A5A10;font-weight:600;margin-bottom:8px}
-  .why .row{gap:6px}
-  .why button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600}
-  .why button.on{background:#7A5A10;border-color:#7A5A10;color:#fff}
-  .excl{background:var(--mustard-soft);color:#7A5A10;border-radius:10px;padding:12px;font-size:14px;font-weight:600}
+  .daycard{background:var(--card);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .dayhead{display:flex;align-items:baseline;gap:8px;padding:14px 16px 10px}
+  .dayhead b{font-size:19px;letter-spacing:-.02em}
+  .dayhead span{font-size:14px;color:var(--muted)}
+  .choice{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:none;border:none;padding:13px 16px;border-top:.5px solid var(--line);transition:background .12s}
+  .choice:active{background:rgba(0,0,0,.04)}
+  .choice .tick{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;border:1.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+  .choice.on .tick{background:var(--accent);border-color:var(--accent)}
+  .choice .body{flex:1;min-width:0}
+  .choice .ttl{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .choice.on .ttl{color:var(--accent)}
+  .choice .dishes{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
+  .choice:disabled{opacity:.55}
+  .choice.skip .ttl{color:var(--muted)}
+  .choice.skip.on .ttl{color:var(--amber)}
+  .choice.skip.on .tick{background:var(--amber);border-color:var(--amber)}
+  .why{background:var(--amber-soft);padding:12px 16px;border-top:.5px solid var(--line)}
+  .why .warn{font-size:14px;color:var(--amber);font-weight:600;margin-bottom:10px;line-height:1.4}
+  .why .row{gap:8px}
+  .why button{border:1px solid var(--line-strong);background:#fff;border-radius:99px;padding:8px 16px;font-size:15px;font-weight:600;color:var(--ink)}
+  .why button.on{background:var(--amber);border-color:var(--amber);color:#fff}
+  .excl{background:var(--amber-soft);color:var(--amber);padding:14px 16px;font-size:15px;font-weight:600;border-top:.5px solid var(--line)}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
-  .tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:14px}
+  .tab{border:.5px solid var(--line-strong);background:#fff;border-radius:99px;padding:8px 14px;font-size:15px;color:var(--ink)}
   .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th,td{text-align:left;padding:9px 6px;border-bottom:.5px solid var(--line);vertical-align:middle}
   th{font-size:12px;color:var(--muted);font-weight:600}
   td.num{text-align:right;font-variant-numeric:tabular-nums}
-  input[type=text],select,textarea{font:inherit;width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
+  input[type=text],select,textarea{font:inherit;font-size:16px;width:100%;border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
   textarea{min-height:120px}
   .menugrid{display:grid;grid-template-columns:56px repeat(3,1fr);gap:8px;align-items:center}
   .menugrid .h{font-size:12px;color:var(--muted);font-weight:600}
   .stat{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-  .stat div{flex:1;min-width:120px;background:var(--green-soft);border-radius:10px;padding:10px 12px}
-  .stat b{display:block;font-size:22px}
-  .stat span{font-size:12px;color:var(--green)}
+  .stat div{flex:1;min-width:120px;background:var(--accent-soft);border-radius:12px;padding:12px 14px}
+  .stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em}
+  .stat span{font-size:13px;color:var(--accent)}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .muted{color:var(--muted);font-size:13px}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{background:var(--red-soft);color:var(--red);border-radius:8px;padding:4px 8px;font-size:13px}
-  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(28,28,30,.92);backdrop-filter:blur(10px);color:#fff;padding:11px 18px;border-radius:99px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s}
   #toast.show{opacity:1}
   label.ck{display:inline-flex;align-items:center;gap:4px;font-size:13px;margin-right:8px}
   #print{display:none}
@@ -240,7 +253,7 @@ async function renderStudent(previewOf){
   const w=mondayOf(1), email=ro?previewOf.email:S.user.email;
   const [week,my]=await Promise.all([loadWeek(w),loadMyOrder(w,email)]);
   const locked=isLocked(w)||ro, ex=(week.excluded||{})[email]||[];
-  const bar=ro?`<div class="card" style="background:var(--mustard-soft);border-color:var(--mustard)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
+  const bar=ro?`<div class="card" style="background:var(--amber-soft)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
   const bindBack=()=>{ const b=$("#backAdmin"); if(b) b.onclick=()=>renderAdmin(); };
   const choices={...(my?.choices||{})}; const reasons={...(my?.reasons||{})};
   const root=$("#app");
@@ -258,32 +271,36 @@ async function renderStudent(previewOf){
       <p class="sub">${ro?`<span class="pill open">미리보기</span> ${my?"저장한 내용이 이렇게 보여요.":"아직 신청하지 않은 상태예요."}`
         :locked?`<span class="pill locked">마감됨</span> 신청 안 한 날은 한식으로 들어가요.`
         :`<span class="pill open">${remain(w)}</span> 금요일 오후 1시까지 저장해 주세요.${my?` <span class="pill ok">저장됨</span>`:""}`}</p>
-      <div class="card">
-        ${DAYS.map(d=>{
+      ${DAYS.map(d=>{
           const m=week.menu?.[d.k]||{};
-          if(ex.includes(d.k)) return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div><div class="excl">대회 출전 · 점심 신청 없음</div></div>`;
+          const head=`<div class="dayhead"><b>${d.n}요일</b><span>${fmtMD(dayDate(w,d.off))}</span></div>`;
+          if(ex.includes(d.k)) return `<div class="daycard">${head}<div class="excl">대회 출전 · 점심 신청 없음</div></div>`;
           const cur=choices[d.k]||(isLocked(w)?"korean":"");
-          return `<div class="dayrow"><div class="dayname">${d.n}<small>${fmtMD(dayDate(w,d.off))}</small></div>
-            <div class="opts">
-              ${MENUS.map(x=>{const v=m[x.k],arr=Array.isArray(v)?v:(v?[v]:[]),head=arr[0]||"";
-                return `<button class="opt ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""} title="${esc(arr.join(", "))}">${x.n}<div style="font-size:11px;font-weight:400;opacity:.8;margin-top:2px">${esc(head.slice(0,12))}</div></button>`;}).join("")}
-              <button class="opt none ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>못 먹어요</button>
-            </div>
-            ${cur==="korean"&&(m.korean||[]).length>1?`<div class="why" style="background:var(--green-soft);border-color:var(--green)"><div style="font-size:13px;color:var(--green)">${m.korean.map(x=>esc(x)).join(" · ")}</div></div>`:""}
+          const rows=MENUS.map(x=>{
+            const v=m[x.k], arr=Array.isArray(v)?v:(v?[v]:[]);
+            return `<button class="choice ${cur===x.k?"on":""}" data-d="${d.k}" data-m="${x.k}" ${locked?"disabled":""}>
+              <span class="tick">${cur===x.k?"✓":""}</span>
+              <span class="body"><span class="ttl">${x.n}</span>${arr.length?`<div class="dishes">${arr.map(t=>esc(t)).join(" · ")}</div>`:""}</span>
+            </button>`;
+          }).join("");
+          return `<div class="daycard">${head}${rows}
+            <button class="choice skip ${cur==="none"?"on":""}" data-d="${d.k}" data-m="none" ${locked?"disabled":""}>
+              <span class="tick">${cur==="none"?"✓":""}</span>
+              <span class="body"><span class="ttl">못 먹어요</span></span>
+            </button>
             ${cur==="none"?`<div class="why">
-              <div class="warn">⚠ 점심을 못 먹는 날은 행정실 선생님께 반드시 다시 확인받아야 해요.</div>
+              <div class="warn">점심을 못 먹는 날은 행정실 선생님께 반드시 다시 확인받아야 해요.</div>
               <div class="row">
                 <button data-d="${d.k}" data-w="대회 출전" class="${reasons[d.k]==="대회 출전"?"on":""}" ${locked?"disabled":""}>대회 출전</button>
                 <button data-d="${d.k}" data-w="기타" class="${reasons[d.k]==="기타"?"on":""}" ${locked?"disabled":""}>기타</button>
               </div></div>`:""}
-            </div>`;
+          </div>`;
         }).join("")}
-      </div>
       ${locked?"":`<div class="row" style="margin-bottom:10px"><button class="btn secondary" id="copyPrev">지난주랑 똑같이</button></div>
       <button class="btn wide" id="save" ${done?"":"disabled"}>${done?"저장하기":"모든 요일을 골라주세요"}</button>`}`;
 
     bindBack();
-    root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; if(b.dataset.m!=="none") delete reasons[b.dataset.d]; draw(); });
+    root.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{ choices[b.dataset.d]=b.dataset.m; if(b.dataset.m!=="none") delete reasons[b.dataset.d]; draw(); });
     root.querySelectorAll(".why button").forEach(b=>b.onclick=()=>{ reasons[b.dataset.d]=b.dataset.w; draw(); });
     const cp=$("#copyPrev"); if(cp) cp.onclick=async()=>{
       const prev=await loadMyOrder(mondayOf(0),email);
