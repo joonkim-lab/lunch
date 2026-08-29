@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "mm-lunch"
+  },
+  "targets": {
+    "mm-lunch": {
+      "hosting": {
+        "main": [
+          "lunch2mm"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
