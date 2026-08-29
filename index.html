@@ -174,6 +174,7 @@ const firebaseConfig = {
 };
 const ADMIN_EMAILS = ["joon.kim@educclesia.com"];
 const DEADLINE_HOUR = 13;   // 금요일 13:00 KST 마감
+const DEV_OPEN = true;      // 개발용 임시 개방 — 끝나면 false
 /* ============================================================== */
 
 const ROLES = {
@@ -202,7 +203,7 @@ function mondayOf(shift){ const n=toK(new Date()); const back=(n.getUTCDay()+6)%
 const dayDate = (w,off) => ymd(fromYmd(w)+off*DAY);
 const fmtMD = s => { const d=new Date(fromYmd(s)); return `${d.getUTCMonth()+1}/${d.getUTCDate()}`; };
 const deadlineMs = w => fromYmd(w) - 3*DAY + DEADLINE_HOUR*H - KST;
-const isLocked = w => Date.now() > deadlineMs(w);
+const isLocked = w => !DEV_OPEN && Date.now() > deadlineMs(w);
 function remain(w){ let ms=deadlineMs(w)-Date.now(); if(ms<=0) return "마감";
   const d=Math.floor(ms/DAY), h=Math.floor(ms%DAY/H), m=Math.floor(ms%H/60000);
   return d>0?`${d}일 ${h}시간 남음`:h>0?`${h}시간 ${m}분 남음`:`${m}분 남음`; }
