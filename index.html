@@ -175,6 +175,7 @@ const firebaseConfig = {
 const ADMIN_EMAILS = ["joon.kim@educclesia.com"];
 const DEADLINE_HOUR = 13;   // 금요일 13:00 KST 마감
 const DEV_OPEN = true;      // 개발용 임시 개방 — 끝나면 false
+const DEV_WEEK = 0;         // 학생 화면이 볼 주차: 0=이번주, 1=다음주(실제값). 테스트 끝나면 1
 /* ============================================================== */
 
 const ROLES = {
@@ -314,7 +315,7 @@ function renderUnregistered(u){
 /* ================= 학생 화면 ================= */
 async function renderStudent(previewOf){
   const ro=!!previewOf;
-  const w=mondayOf(1), email=ro?previewOf.email:S.user.email;
+  const w=mondayOf(DEV_WEEK), email=ro?previewOf.email:S.user.email;
   const [week,my]=await Promise.all([loadWeek(w),loadMyOrder(w,email)]);
   const locked=isLocked(w)||ro, ex=(week.excluded||{})[email]||[];
   const bar=ro?`<div class="card" style="background:var(--amber-soft);border-color:var(--amber)"><div class="row"><b>미리보기</b><span class="muted">${esc(previewOf.name)} 학생에게 보이는 화면 · 여기서 누른 것은 저장되지 않아요</span><button class="btn secondary" id="backAdmin" style="margin-left:auto">관리 화면으로</button></div></div>`:"";
