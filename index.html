@@ -300,7 +300,7 @@ function renderLogin(){
     <div class="wordmark">열두시</div>
     <div class="tag">2mm 점심 신청</div>
     <p class="lede">다음주 점심을 미리 정해두세요.<br>금요일 오후 1시에 마감돼요.</p>
-    <button class="btn wide" id="login">학교 구글 계정으로 시작</button>
+    <button class="btn wide" id="login">구글 계정으로 시작</button>
     <p class="note">명단에 등록된 계정만 들어올 수 있어요</p>
   </div>`;
   $("#login").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>toast("로그인 실패: "+e.code));
