@@ -437,9 +437,47 @@ function panelStatus(panel,w,week,users,orders){
     </div>
     <div class="card"><h2 style="margin-top:0">미신청 학생 ${unsubmitted.length}명</h2>
       ${unsubmitted.length?`<div class="chips">${unsubmitted.map(u=>`<span class="chip">${esc(u.name)}</span>`).join("")}</div>`:`<p class="muted">모두 신청했어요.</p>`}
+      ${unsubmitted.length?`<div class="row" style="margin-top:14px">
+        <button class="btn" id="dcSend">디스코드로 독촉 보내기</button>
+        ${S.role==="admin"?`<button class="btn secondary" id="dcCfg">웹훅 주소 설정</button>`:""}
+      </div>`:""}
     </div>`;
   $("#printBtn").onclick=()=>{ buildPrint(w,out); window.print(); };
   const pv=$("#pvGo"); if(pv) pv.onclick=()=>{ const e=$("#pvSel").value; const u=students.find(x=>x.email===e); renderStudent({email:u.email,name:u.name}); };
+
+  const cfg=$("#dcCfg"); if(cfg) cfg.onclick=async()=>{
+    let cur=""; try{ const d=await getDoc(doc(db,"lunch_config","discord")); if(d.exists()) cur=d.data().url||""; }catch(e){}
+    const v=prompt("디스코드 웹훅 주소를 붙여넣으세요.\n(비우고 확인하면 삭제됩니다)", cur);
+    if(v===null) return;
+    try{ await setDoc(doc(db,"lunch_config","discord"),{url:v.trim()},{merge:true}); toast(v.trim()?"저장했어요":"삭제했어요"); }
+    catch(e){ toast("저장 실패: "+e.code); }
+  };
+
+  const snd=$("#dcSend"); if(snd) snd.onclick=async()=>{
+    let url=""; try{ const d=await getDoc(doc(db,"lunch_config","discord")); if(d.exists()) url=d.data().url||""; }catch(e){}
+    if(!url){ toast("웹훅 주소가 아직 설정되지 않았어요"); return; }
+    const names=unsubmitted.map(u=>u.discordId?`<@${u.discordId}>`:esc(u.name)).join(", ");
+    const left=remain(w);
+    const body={
+      username:"열두시",
+      content:[
+        `**다음주 점심 신청, ${left==="마감"?"마감됐어요":left}**`,
+        `${weekLabel(w)} · ${students.length}명 중 **${unsubmitted.length}명**이 아직 안 했어요`,
+        ``,
+        names,
+        ``,
+        `https://lunch2mm.web.app`
+      ].join("\n"),
+      allowed_mentions:{parse:["users"]}
+    };
+    snd.disabled=true; snd.textContent="보내는 중…";
+    try{
+      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(r.ok||r.status===204) toast("디스코드에 보냈어요");
+      else toast("발송 실패 ("+r.status+")");
+    }catch(e){ toast("발송 실패 — 웹훅 주소를 확인해 주세요"); }
+    snd.disabled=false; snd.textContent="디스코드로 독촉 보내기";
+  };
 }
 
 function buildPrint(w,out){
